@@ -4,42 +4,42 @@
 
 ---
 
-## 🌟 Tính Năng Nổi Bật
+## 🌟 Tính Năng Mới & Cải Tiến Vượt Trội
 
-1. **Chuẩn giao diện iPhone 15 Pro Max (iOS 17/18 Neo-Fintech)**:
-   - Dynamic Island & Status bar chân thực.
-   - Thanh điều hướng Bottom Bar chuẩn Native iOS.
-   - Bo góc mềm mại, hiệu ứng làm mờ nền kính (Backdrop Blur), hỗ trợ chuyển đổi Dark / Light Theme.
-   - Trên di động (iPhone/Android): Tự động tràn viền full-screen.
-   - Trên máy tính: Hiển thị khung iPhone 15 Pro Max sang trọng.
+1. **Thao Tác Lướt Vuốt (Swipe Navigation) Giữa Các Tab**:
+   - Vuốt màn hình sang trái/phải để chuyển tab mượt mà theo thời gian thực (hỗ trợ cả chạm vuốt trên iPhone và kéo chuột trên máy tính).
+   - Click trực tiếp vào tên tab ở thanh điều hướng để nhảy nhanh đến màn hình mong muốn.
 
-2. **Cơ chế lưu trữ dữ liệu tĩnh trên GitHub Pages (Không cần Database)**:
-   - **Tự động lưu vào `LocalStorage`**: Mọi thao tác thêm/sửa/xóa tháng lương, dòng tiền, rỏ đầu tư đều được lưu tức thì vào bộ nhớ trình duyệt của điện thoại/máy tính.
-   - **Sao lưu & Phục hồi JSON (1-Click Backup & Restore)**: Tải file `mms_finance_backup_<ngay>.json` về máy để lưu trữ hoặc chuyển đổi dữ liệu dễ dàng giữa iPhone và Laptop.
-   - **Copy chuỗi JSON vào Clipboard**: Chia sẻ hoặc lưu nhanh vào Ghi chú (Notes).
-   - **Dữ liệu mẫu ban đầu**: Đã cấu hình sẵn chính xác bản ghi Tháng 9/2026 từ file Excel gốc của bạn (`MB - IT Risk - CV lv1`).
+2. **Thanh Tab Bar Tối Giản (Slim Dynamic Bar)**:
+   - Thanh điều hướng mỏng nhẹ, tinh tế (chỉ 50px) không che khuất nội dung.
+   - Hiển thị tên tab dạng thanh: **Đang ở tab nào thì tên tab đó phóng to nổi bật** (13.5px, in đậm, đèn tín hiệu sáng bên dưới), các tab khác thu nhỏ lại (10.5px, mờ nhẹ) giúp tập trung tầm nhìn.
 
-3. **Màn hình Dashboard Tổng Quan (KPIs & Biểu Đồ Trực Quan)**:
-   - **Thẻ số lớn**: Thu nhập thực nhận, Tổng chi phí & phân bổ, Tiết kiệm & Đầu tư, Tiền tiêu còn lại & Số dư thực tế.
-   - **Biểu đồ tròn (Doughnut Chart)**: Phân bổ chi tiêu chi tiết (Học tập, Gửi bố mẹ, Nhu cầu thiết yếu, Tiền tiêu, Tiết kiệm, Đầu tư).
-   - **Biểu đồ đường (Line Chart)**: Lịch sử và xu hướng thu nhập, tiền tiết kiệm và chi tiêu qua các tháng.
-   - **Danh sách chi tiết nhu cầu thiết yếu**: ChatGPT, Cắt tóc, Old Spice, Tiền mạng, BCS...
+3. **Dashboard Mới - Chống Tràn Chữ Trên Điện Thoại**:
+   - Tối ưu kích thước chữ với `clamp()` và bo viền thông minh, cam kết **không bị đè chữ, tràn số hay vỡ giao diện** trên màn hình điện thoại.
+   - **Mặc định 2 nút chọn nhanh**:
+     - `[ Kì mới nhất (T9/26) ]`: Xem ngay kì lương gần nhất.
+     - `[ Tổng các kì ]`: Thống kê tổng hợp lũy kế tất cả các kì (tổng thu nhập, tổng chi, tổng tích lũy, cơ cấu chi).
+   - **Nút lọc thông minh (Icon Filter)**: Mở danh sách chọn nhanh kì cụ thể bất kỳ kèm nút xóa lọc quay về tức thì.
 
-4. **Khai báo Kì Lương & Công Thức Tự Động Tính Toán**:
-   - `Thực nhận` = `Lương (Gross)` - `Thuế & Khấu trừ` + `Thưởng & thêm`
-   - `Tổng nhu cầu thiết yếu` = Tổng các khoản chi tiết (có thể thêm bớt mục tùy ý)
-   - `Tiền tiêu còn lại` = `Thực nhận` - (`Học` + `Gửi bố mẹ` + `Tiết kiệm` + `Đầu tư` + `Nhu cầu thiết yếu`)
-   - `Tỷ lệ tích lũy` = `((Tiết kiệm + Đầu tư) / Thực nhận) * 100%`
+4. **Chức Năng Mới: "Truy Vấn Số Liệu" (Thay thế mục Cài đặt)**:
+   - Bộ lọc thời gian linh hoạt:
+     - *Toàn bộ thời gian*
+     - *Năm 2026*
+     - *Tùy chọn khoảng thời gian* (Từ kì... Đến kì...)
+   - 4 chỉ số thống kê chuyên sâu: Tổng thu nhập, Chi phí bình quân/tháng, Tổng tích lũy & đầu tư, Tiền tiêu tự do.
+   - Biểu đồ thanh xếp hạng các khoản chi tiêu lớn nhất trong kì truy vấn.
+   - Bảng tổng hợp chi tiết thu nhập & tích lũy từng tháng trong khoảng lọc.
+   - Tích hợp sẵn công cụ **Sao Lưu (Export) / Khôi Phục (Import) File JSON**.
 
-5. **Sổ Thu Chi Linh Hoạt (Cashflow Tracker)**:
-   - Dành cho các khoản chi tiêu / thu nhập phát sinh hàng ngày ngoài bảng lương cố định (Ăn uống, Cafe, Mua sắm, Di chuyển...).
-   - Lọc nhanh theo Khoản Chi, Khoản Thu hoặc Tất cả.
-   - Thống kê chênh lệch dòng tiền.
+5. **Khai Báo Kì Lương & Công Thức Tự Động Tính Toán**:
+   - Dữ liệu khởi đầu: Giữ chuẩn duy nhất bản ghi **Tháng 9/2026** từ file Excel của bạn (`MB - IT Risk - CV lv1`).
+   - Công thức tự động:
+     $$\text{Thực nhận} = \text{Lương Gross} - \text{Thuế \& Khấu trừ} + \text{Thưởng \& Thêm}$$
+     $$\text{Nhu cầu thiết yếu} = \sum \text{Các mục con (ChatGPT, Cắt tóc, Mạng, BCS...)}$$
+     $$\text{Tiền tiêu còn lại} = \text{Thực nhận} - (\text{Học} + \text{Bố mẹ} + \text{Tiết kiệm} + \text{Đầu tư} + \text{Thiết yếu})$$
 
-6. **Quản Lý Danh Mục Đầu Tư (Portfolio & Baskets)**:
-   - Khai báo các rỏ đầu tư: Cổ phiếu MBB, Quỹ mở/ETF, Crypto (BTC/ETH), Vàng, Tiết kiệm sinh lời...
-   - Theo dõi: Vốn đã bỏ vào, Giá trị hiện tại, Lợi nhuận/Lỗ (P&L bằng số tiền và %).
-   - Biểu đồ phân bổ tài sản (Asset Allocation).
+6. **Danh Mục Đầu Tư & Sổ Thu Chi Khởi Đầu Sạch Sẽ**:
+   - Danh mục đầu tư ban đầu để trống hoàn toàn, sẵn sàng để bạn tự do khai báo các rỏ tài sản thực tế và số vốn của mình.
 
 ---
 
@@ -49,45 +49,30 @@
 Mở terminal tại thư mục dự án và chạy các lệnh sau:
 
 ```bash
-git init
 git add .
-git commit -m "feat: Khoi tao ung dung quan ly tai chinh va dau tu MMS"
+git commit -m "feat: Nang cap giao dien vuot swipe, tab bar dong va tinh nang truy van so lieu"
 ```
 
-### Bước 2: Tạo Repository trên GitHub
-1. Truy cập [GitHub](https://github.com) và tạo một Repository mới (ví dụ đặt tên là `mms` hoặc `my-finance`).
-2. Chọn chế độ **Public** (để dùng GitHub Pages miễn phí).
-
-### Bước 3: Đẩy mã nguồn lên GitHub
+### Bước 2: Đẩy lên GitHub
 ```bash
 git branch -M main
 git remote add origin https://github.com/<tai-khoan-cua-ban>/<ten-repo>.git
 git push -u origin main
 ```
 
-### Bước 4: Kích hoạt GitHub Pages
-1. Vào repository trên GitHub &rarr; Chọn tab **Settings**.
-2. Ở thanh bên trái, chọn **Pages**.
-3. Tại mục **Build and deployment**:
+### Bước 3: Bật GitHub Pages
+1. Vào repository trên GitHub &rarr; Chọn tab **Settings** &rarr; **Pages**.
+2. Tại mục **Build and deployment**:
    - **Source**: Chọn `Deploy from a branch`.
-   - **Branch**: Chọn `main` và thư mục `/(root)`.
-   - Nhấn **Save**.
-4. Chờ khoảng 1-2 phút, GitHub sẽ tạo link trang web của bạn:
+   - **Branch**: Chọn `main` và thư mục `/(root)` &rarr; Nhấn **Save**.
+3. Chờ khoảng 1 phút, GitHub sẽ cung cấp link truy cập:
    `https://<tai-khoan-cua-ban>.github.io/<ten-repo>/`
 
 ---
 
 ## 📱 Cài Đặt Vào iPhone 15 Pro Max Như Một Ứng Dụng Native
 
-1. Mở trình duyệt **Safari** trên iPhone và truy cập vào đường link GitHub Pages của bạn.
-2. Nhấn vào nút **Chia sẻ (Share)** (biểu tượng hình vuông có mũi tên hướng lên ở giữa thanh công cụ Safari).
-3. Cuộn xuống và chọn **"Thêm vào Màn hình chính" (Add to Home Screen)**.
-4. Nhấn **Thêm (Add)**.
-5. Biểu tượng ứng dụng MMS sẽ xuất hiện trên màn hình iPhone, khi mở sẽ chạy toàn màn hình (Standalone) không có thanh địa chỉ của trình duyệt, mượt mà như app tải từ App Store!
-
----
-
-## 🔒 Bảo Mật & Riêng Tư Dữ Liệu
-- Toàn bộ dữ liệu tài chính của bạn được lưu trữ trên thiết bị cá nhân (trình duyệt) thông qua `localStorage`.
-- Không gửi bất kỳ thông tin nào lên máy chủ bên thứ ba.
-- Hãy sử dụng tính năng **"Tải về file dữ liệu (.json)"** trong mục **Cài đặt** định kỳ để sao lưu an toàn!
+1. Mở link GitHub Pages trên trình duyệt **Safari** của iPhone.
+2. Bấm nút **Chia sẻ (Share)** ở thanh công cụ dưới Safari.
+3. Chọn **"Thêm vào Màn hình chính" (Add to Home Screen)** &rarr; Bấm **Thêm (Add)**.
+4. Mở app trực tiếp từ màn hình chính để tận hưởng cảm giác vuốt lướt toàn màn hình như ứng dụng native iOS!

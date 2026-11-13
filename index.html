@@ -6,7 +6,7 @@
   <title>MMS - Quản Lý Tài Chính & Danh Mục Đầu Tư</title>
   
   <!-- Favicon & PWA Theme -->
-  <meta name="theme-color" content="#0d1117">
+  <meta name="theme-color" content="#090d16">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💎</text></svg>">
@@ -26,9 +26,10 @@
 </head>
 <body class="theme-dark">
 
-  <!-- Desktop Device Frame Wrapper (Simulating iPhone 15 Pro Max) -->
+  <!-- Desktop Presentation Wrapper (iPhone 15 Pro Max Frame) -->
   <div class="device-container">
     <div class="iphone-frame">
+      
       <!-- Dynamic Island & Status Bar -->
       <div class="status-bar">
         <span class="status-time" id="statusTime">09:41</span>
@@ -43,7 +44,7 @@
         </div>
       </div>
 
-      <!-- App Header -->
+      <!-- Compact App Header -->
       <header class="app-header">
         <div class="header-left">
           <div class="user-avatar">
@@ -55,363 +56,393 @@
           </div>
         </div>
         <div class="header-actions">
-          <button class="icon-btn" id="btnQuickBackup" title="Sao lưu nhanh JSON">
-            <i data-lucide="hard-drive-download"></i>
-          </button>
           <button class="icon-btn" id="btnToggleTheme" title="Chuyển chế độ sáng/tối">
             <i data-lucide="moon"></i>
+          </button>
+          <button class="icon-btn" id="btnHeaderBackup" title="Sao lưu / Khôi phục">
+            <i data-lucide="hard-drive-download"></i>
           </button>
         </div>
       </header>
 
-      <!-- Main Content Area with Dynamic Views -->
-      <main class="app-body" id="appBody">
+      <!-- Swipeable App Container (5 Tab Slides) -->
+      <div class="swipe-carousel-viewport" id="swipeViewport">
+        <div class="swipe-carousel-track" id="swipeTrack">
 
-        <!-- ================= VIEW 1: DASHBOARD ================= -->
-        <section class="view-section active" id="view-dashboard">
-          <!-- Month Selector Banner -->
-          <div class="month-pill-selector">
-            <label for="dashboardMonthSelect"><i data-lucide="calendar"></i> Kì thống kê:</label>
-            <select id="dashboardMonthSelect" class="select-pill"></select>
-          </div>
-
-          <!-- KPI Cards Grid -->
-          <div class="kpi-grid">
-            <div class="kpi-card primary-gradient">
-              <div class="kpi-label">
-                <span>Thực nhận (Thu nhập)</span>
-                <i data-lucide="wallet"></i>
+          <!-- ================= SLIDE 1: DASHBOARD ================= -->
+          <section class="view-slide" id="slide-dashboard">
+            <!-- Modern Dashboard Mode Bar (Kì mới nhất / Tổng cả 2 kì / Nút Lọc) -->
+            <div class="dash-filter-bar">
+              <div class="dash-quick-toggles">
+                <button class="toggle-pill active" id="btnModeLatest">
+                  <i data-lucide="sparkles"></i>
+                  <span id="labelLatestMonth">Kì mới nhất (T9/26)</span>
+                </button>
+                <button class="toggle-pill" id="btnModeAll">
+                  <i data-lucide="layers"></i>
+                  <span>Tổng các kì</span>
+                </button>
               </div>
-              <div class="kpi-value" id="kpiNetSalary">0 ₫</div>
-              <div class="kpi-sub" id="kpiGrossSalary">Lương gốc: 0 ₫</div>
+              <button class="filter-round-btn" id="btnOpenFilterSheet" title="Chọn kì cụ thể">
+                <i data-lucide="sliders-horizontal"></i>
+              </button>
             </div>
 
-            <div class="kpi-card danger-gradient">
-              <div class="kpi-label">
-                <span>Tổng chi phí & Phân bổ</span>
-                <i data-lucide="arrow-up-right"></i>
+            <!-- Active Filter Badge Banner (when specific custom month is selected) -->
+            <div class="current-filter-badge" id="currentFilterBadge" style="display: none;">
+              <span id="currentFilterText">Đang xem: T9/2026</span>
+              <button class="btn-clear-filter" id="btnClearCustomFilter" title="Về kì mới nhất">
+                <i data-lucide="x"></i>
+              </button>
+            </div>
+
+            <!-- KPI Cards Grid (Mobile Safe, No Text Overflow) -->
+            <div class="kpi-grid">
+              <div class="kpi-card primary-gradient">
+                <div class="kpi-label">
+                  <span>Thực nhận (Thu nhập)</span>
+                  <i data-lucide="wallet"></i>
+                </div>
+                <div class="kpi-value" id="kpiNetSalary">0 ₫</div>
+                <div class="kpi-sub" id="kpiGrossSalary">Lương gốc: 0 ₫</div>
               </div>
-              <div class="kpi-value" id="kpiTotalExpense">0 ₫</div>
-              <div class="kpi-sub" id="kpiExpenseRatio">0% trên thực nhận</div>
-            </div>
 
-            <div class="kpi-card success-gradient">
-              <div class="kpi-label">
-                <span>Tiết kiệm & Đầu tư</span>
-                <i data-lucide="trending-up"></i>
+              <div class="kpi-card danger-gradient">
+                <div class="kpi-label">
+                  <span>Chi phí & Phân bổ</span>
+                  <i data-lucide="arrow-up-right"></i>
+                </div>
+                <div class="kpi-value" id="kpiTotalExpense">0 ₫</div>
+                <div class="kpi-sub" id="kpiExpenseRatio">0% trên thu nhập</div>
               </div>
-              <div class="kpi-value" id="kpiSaveInvest">0 ₫</div>
-              <div class="kpi-sub" id="kpiSaveInvestRate">Tỷ lệ tích lũy: 0%</div>
-            </div>
 
-            <div class="kpi-card accent-gradient">
-              <div class="kpi-label">
-                <span>Tiền tiêu còn lại</span>
-                <i data-lucide="shopping-bag"></i>
+              <div class="kpi-card success-gradient">
+                <div class="kpi-label">
+                  <span>Tiết kiệm & Đầu tư</span>
+                  <i data-lucide="trending-up"></i>
+                </div>
+                <div class="kpi-value" id="kpiSaveInvest">0 ₫</div>
+                <div class="kpi-sub" id="kpiSaveInvestRate">Tích lũy: 0%</div>
               </div>
-              <div class="kpi-value" id="kpiFreeMoney">0 ₫</div>
-              <div class="kpi-sub" id="kpiActualBalance">Số dư thực tế: 0 ₫</div>
-            </div>
-          </div>
 
-          <!-- Section: Biểu đồ phân bổ chi tiêu tháng -->
-          <div class="card-box mt-3">
-            <div class="card-box-header">
-              <div class="header-with-badge">
-                <h3>Phân Bổ Chi Tiêu & Quỹ</h3>
-                <span class="badge badge-primary" id="pieMonthLabel">T9/2026</span>
+              <div class="kpi-card accent-gradient">
+                <div class="kpi-label">
+                  <span>Tiền tiêu còn lại</span>
+                  <i data-lucide="shopping-bag"></i>
+                </div>
+                <div class="kpi-value" id="kpiFreeMoney">0 ₫</div>
+                <div class="kpi-sub" id="kpiActualBalance">Số dư thực tế: 0 ₫</div>
               </div>
-              <i data-lucide="pie-chart" class="text-muted"></i>
             </div>
-            <div class="chart-container pie-container">
-              <canvas id="expensePieChart"></canvas>
-            </div>
-            <div class="chart-legend-custom" id="pieChartLegend"></div>
-          </div>
 
-          <!-- Section: Lịch sử tích lũy & Chi tiêu -->
-          <div class="card-box mt-3">
-            <div class="card-box-header">
+            <!-- Card: Biểu đồ phân bổ chi tiêu -->
+            <div class="card-box mt-3">
+              <div class="card-box-header">
+                <div class="header-with-badge">
+                  <h3>Phân Bổ Chi Tiêu & Quỹ</h3>
+                  <span class="badge badge-primary" id="pieMonthLabel">T9/2026</span>
+                </div>
+                <i data-lucide="pie-chart" class="text-muted"></i>
+              </div>
+              <div class="chart-container pie-container">
+                <canvas id="expensePieChart"></canvas>
+              </div>
+              <div class="chart-legend-custom" id="pieChartLegend"></div>
+            </div>
+
+            <!-- Card: Lịch sử tích lũy & Chi tiêu -->
+            <div class="card-box mt-3">
+              <div class="card-box-header">
+                <div>
+                  <h3>Lịch Sử Thu Chi & Tích Lũy</h3>
+                  <p class="text-caption">So sánh dòng tiền qua các kì</p>
+                </div>
+                <i data-lucide="line-chart" class="text-muted"></i>
+              </div>
+              <div class="chart-container line-container">
+                <canvas id="historyLineChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Card: Danh sách chi phí thiết yếu -->
+            <div class="card-box mt-3">
+              <div class="card-box-header">
+                <div>
+                  <h3>Chi Tiết Thiết Yếu</h3>
+                  <p class="text-caption" id="essentialTotalText">Tổng: 880,000 ₫</p>
+                </div>
+                <button class="btn-xs btn-outline" id="btnEditCurrentEssentials">
+                  <i data-lucide="edit-3"></i> Tùy chỉnh
+                </button>
+              </div>
+              <div class="essentials-preview-list" id="essentialsPreviewList"></div>
+            </div>
+
+            <div style="height: 30px;"></div>
+          </section>
+
+          <!-- ================= SLIDE 2: BẢNG LƯƠNG & NGÂN SÁCH ================= -->
+          <section class="view-slide" id="slide-monthly">
+            <div class="section-top-bar">
               <div>
-                <h3>Lịch Sử Thu Chi & Tiết Kiệm</h3>
-                <p class="text-caption">Xu hướng dòng tiền qua các tháng</p>
+                <h2 class="view-title">Bảng Lương & Ngân Sách</h2>
+                <p class="text-caption">Khai báo thu chi định kỳ theo tháng</p>
               </div>
-              <i data-lucide="line-chart" class="text-muted"></i>
+              <button class="btn btn-primary btn-sm" id="btnOpenNewMonthModal">
+                <i data-lucide="plus-circle"></i> Thêm Kì
+              </button>
             </div>
-            <div class="chart-container line-container">
-              <canvas id="historyLineChart"></canvas>
-            </div>
-          </div>
 
-          <!-- Section: Danh sách chi phí thiết yếu tháng này -->
-          <div class="card-box mt-3">
-            <div class="card-box-header">
+            <div class="monthly-list" id="monthlyRecordsContainer"></div>
+            <div style="height: 30px;"></div>
+          </section>
+
+          <!-- ================= SLIDE 3: SỔ THU CHI LINH HOẠT ================= -->
+          <section class="view-slide" id="slide-cashflow">
+            <div class="section-top-bar">
               <div>
-                <h3>Chi Tiết Thiết Yếu Tháng</h3>
-                <p class="text-caption" id="essentialTotalText">Tổng: 880,000 ₫</p>
+                <h2 class="view-title">Sổ Thu Chi Linh Hoạt</h2>
+                <p class="text-caption">Nhập dòng tiền phát sinh tức thì</p>
               </div>
-              <button class="btn-xs btn-outline" id="btnEditCurrentEssentials">
-                <i data-lucide="edit-3"></i> Tùy chỉnh
+              <button class="btn btn-primary btn-sm" id="btnOpenQuickTxModal">
+                <i data-lucide="plus"></i> Ghi Khoản Mới
               </button>
             </div>
-            <div class="essentials-preview-list" id="essentialsPreviewList">
-              <!-- Dynamically populated -->
-            </div>
-          </div>
 
-          <div style="height: 30px;"></div>
-        </section>
-
-        <!-- ================= VIEW 2: QUẢN LÝ DỮ LIỆU THÁNG ================= -->
-        <section class="view-section" id="view-monthly">
-          <div class="section-top-bar">
-            <div>
-              <h2 class="view-title">Bảng Lương & Ngân Sách</h2>
-              <p class="text-caption">Dữ liệu tài chính định kỳ theo tháng</p>
-            </div>
-            <button class="btn btn-primary btn-sm" id="btnOpenNewMonthModal">
-              <i data-lucide="plus-circle"></i> Thêm Tháng
-            </button>
-          </div>
-
-          <!-- Records Accordion / List -->
-          <div class="monthly-list" id="monthlyRecordsContainer">
-            <!-- Rendered by JS -->
-          </div>
-
-          <div style="height: 30px;"></div>
-        </section>
-
-        <!-- ================= VIEW 3: SỔ THU CHI LINH HOẠT ================= -->
-        <section class="view-section" id="view-cashflow">
-          <div class="section-top-bar">
-            <div>
-              <h2 class="view-title">Sổ Thu Chi Linh Hoạt</h2>
-              <p class="text-caption">Nhập dòng tiền phát sinh tức thì</p>
-            </div>
-            <button class="btn btn-primary btn-sm" id="btnOpenQuickTxModal">
-              <i data-lucide="plus"></i> Ghi Khoản Mới
-            </button>
-          </div>
-
-          <!-- Quick Summary Bar -->
-          <div class="cashflow-summary-bar">
-            <div class="cf-item income">
-              <span class="cf-label">Thu vào</span>
-              <span class="cf-val" id="cfTotalIncome">+0 ₫</span>
-            </div>
-            <div class="cf-item expense">
-              <span class="cf-label">Chi ra</span>
-              <span class="cf-val" id="cfTotalExpense">-0 ₫</span>
-            </div>
-            <div class="cf-item balance">
-              <span class="cf-label">Chênh lệch</span>
-              <span class="cf-val" id="cfNetBalance">0 ₫</span>
-            </div>
-          </div>
-
-          <!-- Filter tags -->
-          <div class="filter-pills" id="cfFilterPills">
-            <button class="pill active" data-filter="all">Tất cả</button>
-            <button class="pill" data-filter="expense">Khoản chi</button>
-            <button class="pill" data-filter="income">Khoản thu</button>
-          </div>
-
-          <!-- Transaction List -->
-          <div class="tx-list" id="txListContainer">
-            <!-- Rendered dynamically -->
-          </div>
-
-          <div style="height: 30px;"></div>
-        </section>
-
-        <!-- ================= VIEW 4: DANH MỤC ĐẦU TƯ ================= -->
-        <section class="view-section" id="view-invest">
-          <div class="section-top-bar">
-            <div>
-              <h2 class="view-title">Rỏ Đầu Tư & Tài Sản</h2>
-              <p class="text-caption">Theo dõi danh mục và lợi nhuận</p>
-            </div>
-            <button class="btn btn-primary btn-sm" id="btnOpenAddBasketModal">
-              <i data-lucide="plus-circle"></i> Thêm Rỏ Mới
-            </button>
-          </div>
-
-          <!-- Portfolio Summary Card -->
-          <div class="portfolio-hero-card">
-            <div class="hero-top">
-              <span class="hero-tag">Tổng Giá Trị Danh Mục</span>
-              <span class="hero-growth-badge" id="portfolioPnLBadge">+0%</span>
-            </div>
-            <div class="hero-amount" id="portfolioTotalValue">0 ₫</div>
-            <div class="hero-stats-row">
-              <div class="stat-col">
-                <span class="stat-label">Tổng vốn bỏ vào</span>
-                <span class="stat-value" id="portfolioTotalCapital">0 ₫</span>
+            <div class="cashflow-summary-bar">
+              <div class="cf-item income">
+                <span class="cf-label">Thu vào</span>
+                <span class="cf-val" id="cfTotalIncome">+0 ₫</span>
               </div>
-              <div class="stat-col">
-                <span class="stat-label">Lợi nhuận (P&L)</span>
-                <span class="stat-value" id="portfolioTotalPnL">0 ₫</span>
+              <div class="cf-item expense">
+                <span class="cf-label">Chi ra</span>
+                <span class="cf-val" id="cfTotalExpense">-0 ₫</span>
+              </div>
+              <div class="cf-item balance">
+                <span class="cf-label">Chênh lệch</span>
+                <span class="cf-val" id="cfNetBalance">0 ₫</span>
               </div>
             </div>
-          </div>
 
-          <!-- Allocation Chart -->
-          <div class="card-box mt-3">
-            <div class="card-box-header">
-              <h3>Tỷ Trọng Danh Mục (Asset Allocation)</h3>
-              <i data-lucide="pie-chart" class="text-muted"></i>
+            <div class="filter-pills" id="cfFilterPills">
+              <button class="pill active" data-filter="all">Tất cả</button>
+              <button class="pill" data-filter="expense">Khoản chi</button>
+              <button class="pill" data-filter="income">Khoản thu</button>
             </div>
-            <div class="chart-container portfolio-chart-container">
-              <canvas id="portfolioChart"></canvas>
-            </div>
-          </div>
 
-          <!-- Investment Baskets List -->
-          <div class="card-box mt-3">
-            <div class="card-box-header">
-              <h3>Danh Sách Rỏ Tài Sản</h3>
-              <span class="badge" id="basketsCountBadge">0 rỏ</span>
-            </div>
-            <div class="basket-list" id="basketsContainer">
-              <!-- Rendered by JS -->
-            </div>
-          </div>
+            <div class="tx-list" id="txListContainer"></div>
+            <div style="height: 30px;"></div>
+          </section>
 
-          <div style="height: 30px;"></div>
-        </section>
-
-        <!-- ================= VIEW 5: CÀI ĐẶT & LƯU TRỮ GITHUB ================= -->
-        <section class="view-section" id="view-settings">
-          <div class="section-top-bar">
-            <div>
-              <h2 class="view-title">Lưu Trữ & Cấu Hình</h2>
-              <p class="text-caption">Cơ chế lưu trên GitHub Pages</p>
-            </div>
-          </div>
-
-          <!-- How Data Persistence Works Explanation -->
-          <div class="info-card">
-            <div class="info-icon">
-              <i data-lucide="shield-check"></i>
-            </div>
-            <div class="info-content">
-              <h4>Dữ liệu lưu thế nào trên GitHub Pages?</h4>
-              <p>MMS hoạt động 100% không cần cơ sở dữ liệu (Serverless/Static Web). Dữ liệu của bạn được tự động lưu vào <strong>Local Storage</strong> của trình duyệt trên điện thoại/máy tính mỗi khi nhập, hoàn toàn riêng tư.</p>
-            </div>
-          </div>
-
-          <!-- Backup / Restore Actions -->
-          <div class="card-box mt-3">
-            <div class="card-box-header">
-              <h3>Sao Lưu & Khôi Phục JSON</h3>
-              <i data-lucide="database" class="text-muted"></i>
-            </div>
-            <p class="text-caption mb-3">Tải file dữ liệu JSON về máy để chuyển qua thiết bị khác hoặc backup định kỳ.</p>
-            
-            <div class="settings-actions">
-              <button class="btn btn-outline full-width" id="btnExportJSON">
-                <i data-lucide="download"></i> Tải Về File Dữ Liệu (.json)
-              </button>
-
-              <label class="btn btn-secondary full-width text-center" style="cursor: pointer;">
-                <i data-lucide="upload"></i> Khôi Phục Từ File (.json)
-                <input type="file" id="inputImportJSON" accept=".json" style="display: none;">
-              </label>
-
-              <button class="btn btn-text full-width" id="btnCopyJSON">
-                <i data-lucide="copy"></i> Sao chép chuỗi JSON vào Clipboard
+          <!-- ================= SLIDE 4: DANH MỤC ĐẦU TƯ ================= -->
+          <section class="view-slide" id="slide-invest">
+            <div class="section-top-bar">
+              <div>
+                <h2 class="view-title">Rỏ Đầu Tư & Tài Sản</h2>
+                <p class="text-caption">Theo dõi danh mục và lợi nhuận</p>
+              </div>
+              <button class="btn btn-primary btn-sm" id="btnOpenAddBasketModal">
+                <i data-lucide="plus-circle"></i> Thêm Rỏ Mới
               </button>
             </div>
-          </div>
 
-          <!-- Reset Default Data -->
-          <div class="card-box mt-3">
-            <div class="card-box-header">
-              <h3>Dữ Liệu Mẫu Ban Đầu</h3>
-              <i data-lucide="refresh-cw" class="text-muted"></i>
-            </div>
-            <p class="text-caption mb-3">Khôi phục lại bản ghi mẫu đầu tiên từ file Excel (Tháng 9/2026 MB - IT Risk).</p>
-            <button class="btn btn-danger-outline full-width" id="btnResetSeedData">
-              <i data-lucide="rotate-ccw"></i> Tải Lại Dữ Liệu Gốc Excel (Reset)
-            </button>
-          </div>
-
-          <!-- GitHub Deployment Guide -->
-          <div class="card-box mt-3">
-            <div class="card-box-header">
-              <h3>Hướng Dẫn Triển Khai GitHub Pages</h3>
-              <i data-lucide="github" class="text-muted"></i>
-            </div>
-            <div class="github-guide-steps">
-              <div class="step-item">
-                <span class="step-num">1</span>
-                <div>
-                  <strong>Tạo Repository mới trên GitHub</strong>
-                  <p class="text-caption">Đặt tên repo ví dụ: <code>my-finance</code> hoặc <code>mms</code> (chế độ Public).</p>
-                </div>
+            <!-- Portfolio Hero -->
+            <div class="portfolio-hero-card">
+              <div class="hero-top">
+                <span class="hero-tag">Tổng Giá Trị Danh Mục</span>
+                <span class="hero-growth-badge" id="portfolioPnLBadge">+0%</span>
               </div>
-              <div class="step-item">
-                <span class="step-num">2</span>
-                <div>
-                  <strong>Đẩy toàn bộ mã nguồn lên repo</strong>
-                  <p class="text-caption">Commit và Push các file: <code>index.html</code>, <code>css/</code>, <code>js/</code>, <code>README.md</code>.</p>
+              <div class="hero-amount" id="portfolioTotalValue">0 ₫</div>
+              <div class="hero-stats-row">
+                <div class="stat-col">
+                  <span class="stat-label">Tổng vốn bỏ vào</span>
+                  <span class="stat-value" id="portfolioTotalCapital">0 ₫</span>
                 </div>
-              </div>
-              <div class="step-item">
-                <span class="step-num">3</span>
-                <div>
-                  <strong>Bật GitHub Pages</strong>
-                  <p class="text-caption">Vào Settings &rarr; Pages &rarr; Source chọn <code>Deploy from a branch</code> &rarr; Chọn Branch <code>main</code> và folder <code>/ (root)</code> &rarr; Save.</p>
-                </div>
-              </div>
-              <div class="step-item">
-                <span class="step-num">4</span>
-                <div>
-                  <strong>Truy cập từ iPhone 15 Pro Max</strong>
-                  <p class="text-caption">Mở link: <code>https://&lt;username&gt;.github.io/&lt;repo&gt;/</code> trên Safari &rarr; Bấm "Chia sẻ" &rarr; Chọn <strong>"Thêm vào Màn hình chính" (Add to Home Screen)</strong> để dùng như app thực thụ!</p>
+                <div class="stat-col">
+                  <span class="stat-label">Lợi nhuận (P&L)</span>
+                  <span class="stat-value" id="portfolioTotalPnL">0 ₫</span>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div style="height: 40px;"></div>
-        </section>
+            <!-- Chart -->
+            <div class="card-box mt-3">
+              <div class="card-box-header">
+                <h3>Tỷ Trọng Danh Mục (Asset Allocation)</h3>
+                <i data-lucide="pie-chart" class="text-muted"></i>
+              </div>
+              <div class="chart-container portfolio-chart-container">
+                <canvas id="portfolioChart"></canvas>
+              </div>
+            </div>
 
-      </main>
+            <!-- Baskets list -->
+            <div class="card-box mt-3">
+              <div class="card-box-header">
+                <h3>Danh Sách Rỏ Tài Sản</h3>
+                <span class="badge" id="basketsCountBadge">0 rỏ</span>
+              </div>
+              <div class="basket-list" id="basketsContainer"></div>
+            </div>
 
-      <!-- Bottom Navigation Bar (iOS Tab Bar Style) -->
-      <nav class="bottom-nav">
-        <button class="nav-tab active" data-target="view-dashboard">
-          <i data-lucide="layout-dashboard"></i>
-          <span>Tổng quan</span>
+            <div style="height: 30px;"></div>
+          </section>
+
+          <!-- ================= SLIDE 5: TRUY VẤN SỐ LIỆU (MỚI) ================= -->
+          <section class="view-slide" id="slide-query">
+            <div class="section-top-bar">
+              <div>
+                <h2 class="view-title">Truy Vấn Số Liệu</h2>
+                <p class="text-caption">Tra cứu và phân tích theo khoảng thời gian</p>
+              </div>
+            </div>
+
+            <!-- Filter Controls Box -->
+            <div class="card-box query-filter-card">
+              <div class="query-range-selector">
+                <label><i data-lucide="calendar"></i> Khoảng thời gian tra cứu:</label>
+                <div class="quick-range-chips" id="quickRangeChips">
+                  <button class="chip active" data-range="all">Tất cả các kì</button>
+                  <button class="chip" data-range="year_2026">Năm 2026</button>
+                  <button class="chip" data-range="custom">Tùy chọn kì</button>
+                </div>
+              </div>
+
+              <!-- Custom Range Selectors (hidden by default unless 'custom' clicked) -->
+              <div class="custom-range-inputs" id="customRangeInputs" style="display: none;">
+                <div class="form-row">
+                  <div class="form-group flex-1">
+                    <label>Từ kì:</label>
+                    <select id="queryStartMonth" class="form-input"></select>
+                  </div>
+                  <div class="form-group flex-1">
+                    <label>Đến kì:</label>
+                    <select id="queryEndMonth" class="form-input"></select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Query Aggregated Metrics Card -->
+            <div class="query-results-panel mt-3">
+              <div class="query-panel-header">
+                <span class="query-badge" id="queryResultRangeBadge">Toàn bộ thời gian (1 kì)</span>
+                <span class="text-caption" id="queryAvgRateBadge">Tích lũy TB: 0%</span>
+              </div>
+
+              <!-- 4 Big Numbers in Query View -->
+              <div class="query-stats-grid">
+                <div class="q-stat-item">
+                  <span class="q-stat-lbl">Tổng Thu Nhập</span>
+                  <span class="q-stat-val primary" id="qTotalIncome">0 ₫</span>
+                  <span class="q-stat-sub" id="qAvgMonthlyIncome">TB tháng: 0 ₫</span>
+                </div>
+                <div class="q-stat-item">
+                  <span class="q-stat-lbl">Tổng Chi Tiêu</span>
+                  <span class="q-stat-val danger" id="qTotalExpense">0 ₫</span>
+                  <span class="q-stat-sub" id="qAvgMonthlyExpense">TB tháng: 0 ₫</span>
+                </div>
+                <div class="q-stat-item">
+                  <span class="q-stat-lbl">Tổng Tích Lũy</span>
+                  <span class="q-stat-val success" id="qTotalSavings">0 ₫</span>
+                  <span class="q-stat-sub" id="qTotalInvested">Đầu tư: 0 ₫</span>
+                </div>
+                <div class="q-stat-item">
+                  <span class="q-stat-lbl">Tiền Tiêu Tự Do</span>
+                  <span class="q-stat-val accent" id="qTotalFreeMoney">0 ₫</span>
+                  <span class="q-stat-sub" id="qActualEndBalance">Số dư cuối: 0 ₫</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Top Spending Breakdown for Queried Period -->
+            <div class="card-box mt-3">
+              <div class="card-box-header">
+                <h3>Cơ Cấu Chi Tiêu Trong Kì Này</h3>
+                <i data-lucide="bar-chart-2" class="text-muted"></i>
+              </div>
+              <div class="query-breakdown-list" id="queryBreakdownList"></div>
+            </div>
+
+            <!-- Detailed Month-by-Month Table in Range -->
+            <div class="card-box mt-3">
+              <div class="card-box-header">
+                <h3>Chi Tiết Từng Kì Trong Khoảng Lọc</h3>
+                <span class="badge" id="queryMonthsCount">1 kì</span>
+              </div>
+              <div class="query-months-table" id="queryMonthsTable"></div>
+            </div>
+
+            <!-- Data Backup & Restore Quick Section (Integrated inside Query view) -->
+            <div class="card-box mt-3">
+              <div class="card-box-header">
+                <h3>Sao Lưu Dữ Liệu (Backup JSON)</h3>
+                <i data-lucide="shield-check" class="text-muted"></i>
+              </div>
+              <p class="text-caption mb-3">Tải về hoặc tải lên file dữ liệu JSON để bảo toàn số liệu qua các thiết bị.</p>
+              <div class="query-backup-actions">
+                <button class="btn btn-outline btn-sm full-width" id="btnExportJSON">
+                  <i data-lucide="download"></i> Tải Về File Dữ Liệu (.json)
+                </button>
+                <label class="btn btn-secondary btn-sm full-width text-center" style="cursor: pointer;">
+                  <i data-lucide="upload"></i> Khôi Phục Từ File (.json)
+                  <input type="file" id="inputImportJSON" accept=".json" style="display: none;">
+                </label>
+              </div>
+            </div>
+
+            <div style="height: 40px;"></div>
+          </section>
+
+        </div>
+      </div>
+
+      <!-- ================= COMPACT SWIPE-SYNCED BOTTOM TAB BAR ================= -->
+      <!-- Modern minimalist bar: Active tab enlarged below, inactive scaled down -->
+      <nav class="bottom-slim-bar" id="bottomSlimBar">
+        <button class="slim-tab active" data-slide="0">
+          <span class="tab-title">Tổng quan</span>
+          <div class="tab-indicator"></div>
         </button>
-        <button class="nav-tab" data-target="view-monthly">
-          <i data-lucide="calendar-days"></i>
-          <span>Kì lương</span>
+        <button class="slim-tab" data-slide="1">
+          <span class="tab-title">Kì lương</span>
+          <div class="tab-indicator"></div>
         </button>
-        <button class="nav-tab" data-target="view-cashflow">
-          <i data-lucide="receipt"></i>
-          <span>Sổ thu chi</span>
+        <button class="slim-tab" data-slide="2">
+          <span class="tab-title">Sổ thu chi</span>
+          <div class="tab-indicator"></div>
         </button>
-        <button class="nav-tab" data-target="view-invest">
-          <i data-lucide="candlestick-chart"></i>
-          <span>Đầu tư</span>
+        <button class="slim-tab" data-slide="3">
+          <span class="tab-title">Đầu tư</span>
+          <div class="tab-indicator"></div>
         </button>
-        <button class="nav-tab" data-target="view-settings">
-          <i data-lucide="settings"></i>
-          <span>Cài đặt</span>
+        <button class="slim-tab" data-slide="4">
+          <span class="tab-title">Truy vấn</span>
+          <div class="tab-indicator"></div>
         </button>
       </nav>
 
-      <!-- Home Indicator (iPhone gesture bar) -->
+      <!-- Home Gesture Indicator -->
       <div class="home-indicator"></div>
     </div>
   </div>
 
-  <!-- ================= MODALS ================= -->
+  <!-- ================= BOTTOM SHEET: FILTER MODAL ================= -->
+  <div class="modal-overlay" id="modalFilterSheet">
+    <div class="modal-sheet">
+      <div class="modal-drag-handle"></div>
+      <div class="modal-header">
+        <h3>Chọn Kì Thống Kê</h3>
+        <button class="icon-btn-close" id="btnCloseFilterSheet"><i data-lucide="x"></i></button>
+      </div>
+      <p class="text-caption mb-3">Chọn kì cụ thể để xem chi tiết trên Dashboard:</p>
+      <div class="filter-month-options" id="filterMonthOptions">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </div>
 
-  <!-- Modal 1: Nhập/Sửa Kì Lương & Phân Bổ (Formula Configured) -->
+  <!-- ================= MODAL: NHẬP KÌ LƯƠNG & PHÂN BỔ ================= -->
   <div class="modal-overlay" id="modalMonthly">
     <div class="modal-sheet">
       <div class="modal-drag-handle"></div>
@@ -423,7 +454,6 @@
       <form id="formMonthly" class="modal-form">
         <input type="hidden" id="monthRecordId">
 
-        <!-- Company & Time Row -->
         <div class="form-row">
           <div class="form-group flex-2">
             <label>Công ty / Vị trí</label>
@@ -450,9 +480,8 @@
           </div>
         </div>
 
-        <!-- Section: Lương & Thu Nhập -->
         <div class="form-group-divider">
-          <span>1. Thu Nhập & Giảm Trừ</span>
+          <span>1. Thu Nhập & Khấu Trừ</span>
         </div>
 
         <div class="form-row">
@@ -477,7 +506,6 @@
           </div>
         </div>
 
-        <!-- Section: Phân Bổ Chi Tiêu & Quỹ -->
         <div class="form-group-divider">
           <span>2. Phân Bổ Các Quỹ & Trách Nhiệm</span>
         </div>
@@ -504,7 +532,6 @@
           </div>
         </div>
 
-        <!-- Section: Nhu Cầu Thiết Yếu (Có breakdown chi tiết) -->
         <div class="form-group-divider">
           <div class="divider-header">
             <span>3. Nhu Cầu Thiết Yếu</span>
@@ -512,13 +539,11 @@
           </div>
         </div>
 
-        <div id="modalEssentialsList" class="modal-subitems-list">
-          <!-- Dynamic breakdown items: ChatGPT, Cắt tóc, Mạng, etc. -->
-        </div>
+        <div id="modalEssentialsList" class="modal-subitems-list"></div>
 
         <div class="form-row mt-2">
           <div class="form-group flex-1">
-            <label>Tổng Nhu cầu thiết yếu ₫ <span class="formula-tag">Tự tính</span></label>
+            <label>Tổng Thiết yếu ₫ <span class="formula-tag">Tự tính</span></label>
             <input type="number" id="mEssentialTotal" class="form-input calculated-field" readonly>
           </div>
           <div class="form-group flex-1">
@@ -527,7 +552,6 @@
           </div>
         </div>
 
-        <!-- Section: Số dư -->
         <div class="form-group-divider">
           <span>4. Số Dư Tích Lũy</span>
         </div>
@@ -551,7 +575,7 @@
     </div>
   </div>
 
-  <!-- Modal 2: Thêm Khoản Thu/Chi Linh Hoạt -->
+  <!-- ================= MODAL: THU CHI LINH HOẠT ================= -->
   <div class="modal-overlay" id="modalCashflow">
     <div class="modal-sheet">
       <div class="modal-drag-handle"></div>
@@ -613,7 +637,7 @@
     </div>
   </div>
 
-  <!-- Modal 3: Thêm / Sửa Rỏ Đầu Tư -->
+  <!-- ================= MODAL: RỎ ĐẦU TƯ ================= -->
   <div class="modal-overlay" id="modalBasket">
     <div class="modal-sheet">
       <div class="modal-drag-handle"></div>
@@ -627,7 +651,7 @@
 
         <div class="form-group">
           <label>Tên rỏ đầu tư</label>
-          <input type="text" id="basketName" class="form-input" placeholder="Ví dụ: Cổ phiếu MBB, Quỹ DCBC, Crypto..." required>
+          <input type="text" id="basketName" class="form-input" placeholder="Ví dụ: Cổ phiếu MBB, Quỹ DCBC..." required>
         </div>
 
         <div class="form-row">
@@ -661,7 +685,7 @@
 
         <div class="form-group">
           <label>Ghi chú / Chiến lược</label>
-          <input type="text" id="basketNote" class="form-input" placeholder="DCA hàng tháng, mục tiêu nắm giữ 2 năm...">
+          <input type="text" id="basketNote" class="form-input" placeholder="DCA hàng tháng, nắm giữ trung hạn...">
         </div>
 
         <div class="modal-actions">
@@ -672,7 +696,7 @@
     </div>
   </div>
 
-  <!-- Notification Toast -->
+  <!-- Toast Notification -->
   <div class="toast-notification" id="toastNotification">
     <i data-lucide="check-circle" id="toastIcon"></i>
     <span id="toastMessage">Đã lưu thành công!</span>
@@ -685,10 +709,8 @@
   <script src="js/app.js"></script>
 
   <script>
-    // Initialize Lucide icons on load
     document.addEventListener("DOMContentLoaded", () => {
       lucide.createIcons();
-      // Update status clock
       const updateClock = () => {
         const now = new Date();
         const hrs = String(now.getHours()).padStart(2, '0');

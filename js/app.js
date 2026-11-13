@@ -1,25 +1,53 @@
 /**
  * MMS - Main Application Controller
+ * Features:
+ * - Swipe Carousel Navigation (5 slides)
+ * - Compact Dynamic Slim Bottom Bar (Active tab enlarged, inactive scaled down)
+ * - Modern Dashboard Mode Toggles (Kì mới nhất / Tổng các kì / Filter Sheet)
+ * - Truy Vấn Số Liệu (Deep Dive Query with Time Filters)
+ * - Anti-text-overflow layout for iPhone 15 Pro Max
  */
 
 class AppController {
   constructor() {
-    this.selectedMonthId = null;
-    this.activeTab = 'view-dashboard';
+    this.currentSlide = 0; // 0: Dashboard, 1: Monthly, 2: Cashflow, 3: Invest, 4: Query
+    this.totalSlides = 5;
+    
+    // Dashboard Filter State
+    this.dashboardMode = 'latest'; // 'latest' | 'all' | 'custom'
+    this.customSelectedMonthId = null;
     this.cashflowFilter = 'all';
+
+    // Query Filter State
+    this.queryRange = 'all'; // 'all' | 'year_2026' | 'custom'
+    this.queryStartMonthVal = null;
+    this.queryEndMonthVal = null;
 
     this.initElements();
     this.bindEvents();
+    this.initSwipeGesture();
     this.initApp();
   }
 
   initElements() {
-    // Navigation
-    this.navTabs = document.querySelectorAll('.nav-tab');
-    this.viewSections = document.querySelectorAll('.view-section');
+    // Carousel
+    this.swipeViewport = document.getElementById('swipeViewport');
+    this.swipeTrack = document.getElementById('swipeTrack');
+    this.slimTabs = document.querySelectorAll('.bottom-slim-bar .slim-tab');
 
-    // Dashboard elements
-    this.dashboardMonthSelect = document.getElementById('dashboardMonthSelect');
+    // Dashboard View Elements
+    this.btnModeLatest = document.getElementById('btnModeLatest');
+    this.btnModeAll = document.getElementById('btnModeAll');
+    this.labelLatestMonth = document.getElementById('labelLatestMonth');
+    this.btnOpenFilterSheet = document.getElementById('btnOpenFilterSheet');
+    this.modalFilterSheet = document.getElementById('modalFilterSheet');
+    this.btnCloseFilterSheet = document.getElementById('btnCloseFilterSheet');
+    this.filterMonthOptions = document.getElementById('filterMonthOptions');
+    this.currentFilterBadge = document.getElementById('currentFilterBadge');
+    this.currentFilterText = document.getElementById('currentFilterText');
+    this.btnClearCustomFilter = document.getElementById('btnClearCustomFilter');
+
+    // KPI Elements (Dashboard)
     this.kpiNetSalary = document.getElementById('kpiNetSalary');
     this.kpiGrossSalary = document.getElementById('kpiGrossSalary');
     this.kpiTotalExpense = document.getElementById('kpiTotalExpense');
@@ -33,7 +61,7 @@ class AppController {
     this.essentialsPreviewList = document.getElementById('essentialsPreviewList');
     this.btnEditCurrentEssentials = document.getElementById('btnEditCurrentEssentials');
 
-    // Monthly view
+    // Monthly View Elements
     this.monthlyRecordsContainer = document.getElementById('monthlyRecordsContainer');
     this.btnOpenNewMonthModal = document.getElementById('btnOpenNewMonthModal');
     this.modalMonthly = document.getElementById('modalMonthly');
@@ -62,7 +90,7 @@ class AppController {
     this.mExpectedBalance = document.getElementById('mExpectedBalance');
     this.mActualBalance = document.getElementById('mActualBalance');
 
-    // Cashflow view
+    // Cashflow View Elements
     this.btnOpenQuickTxModal = document.getElementById('btnOpenQuickTxModal');
     this.modalCashflow = document.getElementById('modalCashflow');
     this.formCashflow = document.getElementById('formCashflow');
@@ -74,7 +102,7 @@ class AppController {
     this.txListContainer = document.getElementById('txListContainer');
     this.cfFilterPills = document.querySelectorAll('#cfFilterPills .pill');
 
-    // Investment view
+    // Investment View Elements
     this.btnOpenAddBasketModal = document.getElementById('btnOpenAddBasketModal');
     this.modalBasket = document.getElementById('modalBasket');
     this.formBasket = document.getElementById('formBasket');
@@ -87,62 +115,107 @@ class AppController {
     this.basketsContainer = document.getElementById('basketsContainer');
     this.basketsCountBadge = document.getElementById('basketsCountBadge');
 
-    // Settings & Persistence
+    // Query View Elements (MỚI)
+    this.quickRangeChips = document.querySelectorAll('#quickRangeChips .chip');
+    this.customRangeInputs = document.getElementById('customRangeInputs');
+    this.queryStartMonth = document.getElementById('queryStartMonth');
+    this.queryEndMonth = document.getElementById('queryEndMonth');
+    this.queryResultRangeBadge = document.getElementById('queryResultRangeBadge');
+    this.queryAvgRateBadge = document.getElementById('queryAvgRateBadge');
+    this.qTotalIncome = document.getElementById('qTotalIncome');
+    this.qAvgMonthlyIncome = document.getElementById('qAvgMonthlyIncome');
+    this.qTotalExpense = document.getElementById('qTotalExpense');
+    this.qAvgMonthlyExpense = document.getElementById('qAvgMonthlyExpense');
+    this.qTotalSavings = document.getElementById('qTotalSavings');
+    this.qTotalInvested = document.getElementById('qTotalInvested');
+    this.qTotalFreeMoney = document.getElementById('qTotalFreeMoney');
+    this.qActualEndBalance = document.getElementById('qActualEndBalance');
+    this.queryBreakdownList = document.getElementById('queryBreakdownList');
+    this.queryMonthsTable = document.getElementById('queryMonthsTable');
+    this.queryMonthsCount = document.getElementById('queryMonthsCount');
+
+    // Persistence & Backup
     this.btnExportJSON = document.getElementById('btnExportJSON');
     this.inputImportJSON = document.getElementById('inputImportJSON');
-    this.btnCopyJSON = document.getElementById('btnCopyJSON');
-    this.btnResetSeedData = document.getElementById('btnResetSeedData');
-    this.btnQuickBackup = document.getElementById('btnQuickBackup');
+    this.btnHeaderBackup = document.getElementById('btnHeaderBackup');
     this.btnToggleTheme = document.getElementById('btnToggleTheme');
     this.toastNotification = document.getElementById('toastNotification');
     this.toastMessage = document.getElementById('toastMessage');
   }
 
   bindEvents() {
-    // Tab switching
-    this.navTabs.forEach(tab => {
+    // 1. Bottom Tab Clicks
+    this.slimTabs.forEach(tab => {
       tab.addEventListener('click', () => {
-        const targetView = tab.getAttribute('data-target');
-        this.switchTab(targetView);
+        const slideIndex = parseInt(tab.getAttribute('data-slide'), 10);
+        this.goToSlide(slideIndex);
       });
     });
 
-    // Theme toggle
+    // 2. Theme Toggle
     this.btnToggleTheme.addEventListener('click', () => {
       document.body.classList.toggle('theme-light');
       const isLight = document.body.classList.contains('theme-light');
       localStorage.setItem('mms_theme', isLight ? 'light' : 'dark');
-      this.showToast(isLight ? 'Đã chuyển sang giao diện Sáng' : 'Đã chuyển sang giao diện Tối');
+      this.showToast(isLight ? 'Đã đổi giao diện Sáng' : 'Đã đổi giao diện Tối');
     });
 
-    // Quick backup button on top header
-    this.btnQuickBackup.addEventListener('click', () => {
-      storage.exportJSON();
-      this.showToast('Đã tải xuống file sao lưu JSON!');
+    // 3. Header Backup Shortcut (Jump to Query & Backup tab)
+    this.btnHeaderBackup.addEventListener('click', () => {
+      this.goToSlide(4); // Jump to Query & Backup Slide
+      this.showToast('Truy cập công cụ Sao lưu & Tra cứu số liệu');
     });
 
-    // Month Selector on Dashboard
-    this.dashboardMonthSelect.addEventListener('change', (e) => {
-      this.selectedMonthId = e.target.value;
+    // 4. Dashboard Quick Toggles
+    this.btnModeLatest.addEventListener('click', () => {
+      this.dashboardMode = 'latest';
+      this.customSelectedMonthId = null;
+      this.updateDashboardFilterUI();
       this.renderDashboard();
     });
 
-    // Edit Essentials from Dashboard
+    this.btnModeAll.addEventListener('click', () => {
+      this.dashboardMode = 'all';
+      this.customSelectedMonthId = null;
+      this.updateDashboardFilterUI();
+      this.renderDashboard();
+    });
+
+    // 5. Dashboard Filter Sheet
+    this.btnOpenFilterSheet.addEventListener('click', () => {
+      this.renderFilterMonthOptions();
+      this.openModal(this.modalFilterSheet);
+    });
+
+    this.btnCloseFilterSheet.addEventListener('click', () => {
+      this.closeModal(this.modalFilterSheet);
+    });
+
+    this.btnClearCustomFilter.addEventListener('click', () => {
+      this.dashboardMode = 'latest';
+      this.customSelectedMonthId = null;
+      this.updateDashboardFilterUI();
+      this.renderDashboard();
+    });
+
+    // Edit Essentials button on Dashboard
     if (this.btnEditCurrentEssentials) {
       this.btnEditCurrentEssentials.addEventListener('click', () => {
-        if (this.selectedMonthId) {
-          this.openEditMonthModal(this.selectedMonthId);
+        const months = storage.getMonths();
+        let targetId = this.customSelectedMonthId || (months[0] ? months[0].id : null);
+        if (targetId) {
+          this.openEditMonthModal(targetId);
         }
       });
     }
 
-    // Modal Monthly Events
+    // Monthly Modal Events
     this.btnOpenNewMonthModal.addEventListener('click', () => this.openNewMonthModal());
     this.btnCloseModalMonthly.addEventListener('click', () => this.closeModal(this.modalMonthly));
     this.btnCancelMonthly.addEventListener('click', () => this.closeModal(this.modalMonthly));
     this.btnAddEssentialItemModal.addEventListener('click', () => this.addEssentialItemRow());
 
-    // Formula Triggers on Monthly Form (Live Calculation!)
+    // Formula Triggers
     const formulaInputs = [
       this.mSalary, this.mTax, this.mBonus,
       this.mStudy, this.mParents, this.mSaving, this.mInvestment
@@ -156,7 +229,7 @@ class AppController {
       this.handleSaveMonth();
     });
 
-    // Cashflow Type Toggle (Income / Expense)
+    // Cashflow Type Toggle
     const typeButtons = document.querySelectorAll('.type-toggle-btn');
     typeButtons.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -166,7 +239,7 @@ class AppController {
       });
     });
 
-    // Cashflow Filter Pills
+    // Cashflow Filters
     this.cfFilterPills.forEach(pill => {
       pill.addEventListener('click', () => {
         this.cfFilterPills.forEach(p => p.classList.remove('active'));
@@ -194,7 +267,25 @@ class AppController {
       this.handleSaveBasket();
     });
 
-    // Settings actions
+    // Query Range Chips
+    this.quickRangeChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        this.quickRangeChips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        this.queryRange = chip.getAttribute('data-range');
+        if (this.queryRange === 'custom') {
+          this.customRangeInputs.style.display = 'block';
+        } else {
+          this.customRangeInputs.style.display = 'none';
+        }
+        this.renderQueryView();
+      });
+    });
+
+    this.queryStartMonth.addEventListener('change', () => this.renderQueryView());
+    this.queryEndMonth.addEventListener('change', () => this.renderQueryView());
+
+    // Backup & Restore
     this.btnExportJSON.addEventListener('click', () => {
       storage.exportJSON();
       this.showToast('Đã xuất file sao lưu JSON thành công!');
@@ -217,33 +308,107 @@ class AppController {
       reader.readAsText(file);
       e.target.value = '';
     });
-
-    this.btnCopyJSON.addEventListener('click', () => {
-      const dataStr = JSON.stringify(storage.getAll(), null, 2);
-      navigator.clipboard.writeText(dataStr).then(() => {
-        this.showToast('Đã copy chuỗi dữ liệu JSON vào Clipboard!');
-      }).catch(() => {
-        this.showToast('Không thể copy vào clipboard!', false);
-      });
-    });
-
-    this.btnResetSeedData.addEventListener('click', () => {
-      if (confirm('Bạn có chắc muốn đặt lại dữ liệu gốc từ file Excel (Tháng 9/2026)?')) {
-        storage.resetSeedData();
-        this.showToast('Đã đặt lại dữ liệu mẫu gốc ban đầu!');
-        this.refreshAll();
-      }
-    });
   }
 
+  // ================= SWIPE GESTURE ENGINE =================
+  initSwipeGesture() {
+    let startX = 0;
+    let startY = 0;
+    let isHorizontal = false;
+    let isSwiping = false;
+
+    const handleStart = (e) => {
+      const touch = e.touches ? e.touches[0] : e;
+      startX = touch.clientX;
+      startY = touch.clientY;
+      isHorizontal = false;
+      isSwiping = true;
+    };
+
+    const handleMove = (e) => {
+      if (!isSwiping) return;
+      const touch = e.touches ? e.touches[0] : e;
+      const diffX = touch.clientX - startX;
+      const diffY = touch.clientY - startY;
+
+      // Determine gesture direction
+      if (!isHorizontal && (Math.abs(diffX) > 10 || Math.abs(diffY) > 10)) {
+        isHorizontal = Math.abs(diffX) > Math.abs(diffY);
+      }
+    };
+
+    const handleEnd = (e) => {
+      if (!isSwiping) return;
+      isSwiping = false;
+
+      const touch = e.changedTouches ? e.changedTouches[0] : e;
+      const diffX = touch.clientX - startX;
+
+      if (isHorizontal && Math.abs(diffX) > 42) {
+        if (diffX < 0 && this.currentSlide < this.totalSlides - 1) {
+          // Swipe Left -> Next Slide
+          this.goToSlide(this.currentSlide + 1);
+        } else if (diffX > 0 && this.currentSlide > 0) {
+          // Swipe Right -> Prev Slide
+          this.goToSlide(this.currentSlide - 1);
+        }
+      }
+    };
+
+    // Attach Touch Listeners
+    this.swipeViewport.addEventListener('touchstart', handleStart, { passive: true });
+    this.swipeViewport.addEventListener('touchmove', handleMove, { passive: true });
+    this.swipeViewport.addEventListener('touchend', handleEnd, { passive: true });
+
+    // Also Attach Mouse Drag for Desktop Emulation
+    this.swipeViewport.addEventListener('mousedown', (e) => {
+      // Ignore if clicking on button, input, or select
+      if (e.target.closest('button, input, select, textarea, label, a, .icon-btn')) return;
+      handleStart(e);
+    });
+    window.addEventListener('mousemove', handleMove);
+    window.addEventListener('mouseup', handleEnd);
+  }
+
+  goToSlide(slideIndex) {
+    if (slideIndex < 0) slideIndex = 0;
+    if (slideIndex >= this.totalSlides) slideIndex = this.totalSlides - 1;
+
+    this.currentSlide = slideIndex;
+    this.swipeTrack.style.transform = `translateX(-${slideIndex * 20}%)`;
+
+    // Update Bottom Bar
+    this.slimTabs.forEach((tab, idx) => {
+      if (idx === slideIndex) {
+        tab.classList.add('active');
+      } else {
+        tab.classList.remove('active');
+      }
+    });
+
+    // Refresh content for active slide
+    if (slideIndex === 0) {
+      this.renderDashboard();
+    } else if (slideIndex === 1) {
+      this.renderMonthlyList();
+    } else if (slideIndex === 2) {
+      this.renderCashflow();
+    } else if (slideIndex === 3) {
+      this.renderPortfolio();
+    } else if (slideIndex === 4) {
+      this.renderQueryView();
+    }
+
+    lucide.createIcons();
+  }
+
+  // ================= APP INITIALIZATION =================
   initApp() {
-    // Restore theme preference
     const savedTheme = localStorage.getItem('mms_theme');
     if (savedTheme === 'light') {
       document.body.classList.add('theme-light');
     }
 
-    // Set today's date on cashflow modal
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('cfDate').value = today;
 
@@ -251,84 +416,51 @@ class AppController {
   }
 
   refreshAll() {
-    const months = storage.getMonths();
-    if (months.length > 0) {
-      if (!this.selectedMonthId || !months.some(m => m.id === this.selectedMonthId)) {
-        this.selectedMonthId = months[0].id;
-      }
-    } else {
-      this.selectedMonthId = null;
-    }
-
-    this.populateMonthDropdown();
+    this.updateDashboardFilterUI();
     this.renderDashboard();
     this.renderMonthlyList();
     this.renderCashflow();
     this.renderPortfolio();
+    this.populateQueryMonthSelects();
+    this.renderQueryView();
     lucide.createIcons();
   }
 
-  switchTab(targetViewId) {
-    this.activeTab = targetViewId;
-    this.navTabs.forEach(tab => {
-      if (tab.getAttribute('data-target') === targetViewId) {
-        tab.classList.add('active');
-      } else {
-        tab.classList.remove('active');
-      }
-    });
+  updateDashboardFilterUI() {
+    const months = storage.getMonths();
+    const latest = months[0];
 
-    this.viewSections.forEach(section => {
-      if (section.id === targetViewId) {
-        section.classList.add('active');
-      } else {
-        section.classList.remove('active');
-      }
-    });
-
-    // Re-render specific views on switch
-    if (targetViewId === 'view-dashboard') {
-      this.renderDashboard();
-    } else if (targetViewId === 'view-monthly') {
-      this.renderMonthlyList();
-    } else if (targetViewId === 'view-cashflow') {
-      this.renderCashflow();
-    } else if (targetViewId === 'view-invest') {
-      this.renderPortfolio();
+    if (latest) {
+      this.labelLatestMonth.textContent = `Kì mới nhất (T${latest.month}/${String(latest.year).slice(-2)})`;
+    } else {
+      this.labelLatestMonth.textContent = 'Kì mới nhất';
     }
 
-    lucide.createIcons();
+    if (this.dashboardMode === 'latest') {
+      this.btnModeLatest.classList.add('active');
+      this.btnModeAll.classList.remove('active');
+      this.currentFilterBadge.style.display = 'none';
+    } else if (this.dashboardMode === 'all') {
+      this.btnModeLatest.classList.remove('active');
+      this.btnModeAll.classList.add('active');
+      this.currentFilterBadge.style.display = 'none';
+    } else if (this.dashboardMode === 'custom') {
+      this.btnModeLatest.classList.remove('active');
+      this.btnModeAll.classList.remove('active');
+      const selected = storage.getMonthById(this.customSelectedMonthId);
+      if (selected) {
+        this.currentFilterText.textContent = `Đang xem: T${selected.month}/${selected.year} (${selected.company})`;
+        this.currentFilterBadge.style.display = 'flex';
+      } else {
+        this.currentFilterBadge.style.display = 'none';
+      }
+    }
   }
 
   // ================= VIEW: DASHBOARD =================
-  populateMonthDropdown() {
-    const months = storage.getMonths();
-    this.dashboardMonthSelect.innerHTML = '';
-
-    if (months.length === 0) {
-      const opt = document.createElement('option');
-      opt.value = '';
-      opt.textContent = 'Chưa có bản ghi nào';
-      this.dashboardMonthSelect.appendChild(opt);
-      return;
-    }
-
-    months.forEach(m => {
-      const opt = document.createElement('option');
-      opt.value = m.id;
-      opt.textContent = `Tháng ${m.month}/${m.year} (${m.type || 'Chính thức'}) - ${m.company}`;
-      if (m.id === this.selectedMonthId) {
-        opt.selected = true;
-      }
-      this.dashboardMonthSelect.appendChild(opt);
-    });
-  }
-
   renderDashboard() {
     const months = storage.getMonths();
-    const currentMonth = months.find(m => m.id === this.selectedMonthId) || months[0];
-
-    if (!currentMonth) {
+    if (months.length === 0) {
       this.kpiNetSalary.textContent = '0 ₫';
       this.kpiGrossSalary.textContent = 'Lương gốc: 0 ₫';
       this.kpiTotalExpense.textContent = '0 ₫';
@@ -337,40 +469,97 @@ class AppController {
       return;
     }
 
-    // 1. Calculate KPI Metrics
-    const netSalary = FinanceCalc.calcNetSalary(currentMonth.salary, currentMonth.tax, currentMonth.bonus);
-    const saveInvestTotal = FinanceCalc.toNumber(currentMonth.saving) + FinanceCalc.toNumber(currentMonth.investment);
+    let displayRecord = null;
+    let isAggregated = false;
+
+    if (this.dashboardMode === 'all') {
+      isAggregated = true;
+      // Aggregate across ALL months
+      let totalSalary = 0, totalTax = 0, totalBonus = 0, totalNet = 0;
+      let totalStudy = 0, totalParents = 0, totalSaving = 0, totalInvestment = 0;
+      let totalEssential = 0, totalFree = 0;
+      const combinedEssentials = [];
+
+      months.forEach(m => {
+        totalSalary += FinanceCalc.toNumber(m.salary);
+        totalTax += FinanceCalc.toNumber(m.tax);
+        totalBonus += FinanceCalc.toNumber(m.bonus);
+        totalNet += FinanceCalc.calcNetSalary(m.salary, m.tax, m.bonus);
+        totalStudy += FinanceCalc.toNumber(m.study);
+        totalParents += FinanceCalc.toNumber(m.parents);
+        totalSaving += FinanceCalc.toNumber(m.saving);
+        totalInvestment += FinanceCalc.toNumber(m.investment);
+        totalEssential += FinanceCalc.toNumber(m.essentialTotal);
+        totalFree += FinanceCalc.toNumber(m.freeMoney);
+
+        (m.essentialsList || []).forEach(item => {
+          const exist = combinedEssentials.find(e => e.name.toLowerCase() === item.name.toLowerCase());
+          if (exist) {
+            exist.amount += FinanceCalc.toNumber(item.amount);
+          } else {
+            combinedEssentials.push({ name: item.name, amount: FinanceCalc.toNumber(item.amount) });
+          }
+        });
+      });
+
+      displayRecord = {
+        month: 'Tất cả',
+        year: `${months.length} kì`,
+        salary: totalSalary,
+        bonus: totalBonus,
+        netSalary: totalNet,
+        study: totalStudy,
+        parents: totalParents,
+        saving: totalSaving,
+        investment: totalInvestment,
+        essentialTotal: totalEssential,
+        freeMoney: totalFree,
+        actualBalance: months[0] ? months[0].actualBalance : 0,
+        essentialsList: combinedEssentials
+      };
+    } else if (this.dashboardMode === 'custom' && this.customSelectedMonthId) {
+      displayRecord = storage.getMonthById(this.customSelectedMonthId) || months[0];
+    } else {
+      // Default: Latest month
+      displayRecord = months[0];
+    }
+
+    // 1. Calculations
+    const netSalary = FinanceCalc.toNumber(displayRecord.netSalary);
+    const saveInvestTotal = FinanceCalc.toNumber(displayRecord.saving) + FinanceCalc.toNumber(displayRecord.investment);
     const totalSpending = FinanceCalc.calcTotalSpending(
-      currentMonth.study,
-      currentMonth.parents,
-      currentMonth.essentialTotal,
-      currentMonth.freeMoney
+      displayRecord.study,
+      displayRecord.parents,
+      displayRecord.essentialTotal,
+      displayRecord.freeMoney
     );
-    const saveRate = FinanceCalc.calcSaveInvestRate(currentMonth.saving, currentMonth.investment, netSalary);
+    const saveRate = FinanceCalc.calcSaveInvestRate(displayRecord.saving, displayRecord.investment, netSalary);
     const expenseRatio = netSalary > 0 ? ((totalSpending / netSalary) * 100).toFixed(0) : 0;
 
-    // 2. Set Big Numbers
+    // 2. Set Safe KPI Big Numbers (Compact, no overflow)
     this.kpiNetSalary.textContent = FinanceCalc.formatVND(netSalary);
-    this.kpiGrossSalary.textContent = `Lương: ${FinanceCalc.formatVND(currentMonth.salary)} | Thưởng: ${FinanceCalc.formatVND(currentMonth.bonus)}`;
-    
+    this.kpiGrossSalary.textContent = isAggregated
+      ? `Lương: ${FinanceCalc.formatVNDCompact(displayRecord.salary)} | Thưởng: ${FinanceCalc.formatVNDCompact(displayRecord.bonus)}`
+      : `Lương: ${FinanceCalc.formatVNDCompact(displayRecord.salary)} | Thưởng: ${FinanceCalc.formatVNDCompact(displayRecord.bonus)}`;
+
     this.kpiTotalExpense.textContent = FinanceCalc.formatVND(totalSpending);
     this.kpiExpenseRatio.textContent = `${expenseRatio}% trên tổng thu nhập`;
 
     this.kpiSaveInvest.textContent = FinanceCalc.formatVND(saveInvestTotal);
-    this.kpiSaveInvestRate.textContent = `Tỷ lệ tích lũy: ${saveRate.toFixed(1)}%`;
+    this.kpiSaveInvestRate.textContent = `Tích lũy: ${saveRate.toFixed(1)}%`;
 
-    this.kpiFreeMoney.textContent = FinanceCalc.formatVND(currentMonth.freeMoney);
-    this.kpiActualBalance.textContent = `Số dư thực tế: ${FinanceCalc.formatVND(currentMonth.actualBalance || 0)}`;
+    this.kpiFreeMoney.textContent = FinanceCalc.formatVND(displayRecord.freeMoney);
+    this.kpiActualBalance.textContent = `Số dư thực tế: ${FinanceCalc.formatVND(displayRecord.actualBalance || 0)}`;
 
-    this.pieMonthLabel.textContent = `T${currentMonth.month}/${currentMonth.year}`;
+    this.pieMonthLabel.textContent = isAggregated ? `Tổng ${months.length} kì` : `T${displayRecord.month}/${displayRecord.year}`;
 
     // 3. Render Essentials Breakdown
-    this.essentialTotalText.textContent = `Tổng: ${FinanceCalc.formatVND(currentMonth.essentialTotal || 0)}`;
-    const items = currentMonth.essentialsList || [];
+    this.essentialTotalText.textContent = `Tổng: ${FinanceCalc.formatVND(displayRecord.essentialTotal || 0)}`;
+    const items = displayRecord.essentialsList || [];
     if (items.length === 0) {
       this.essentialsPreviewList.innerHTML = `<div class="text-caption text-center py-2">Chưa có mục thiết yếu chi tiết</div>`;
     } else {
-      this.essentialsPreviewList.innerHTML = items.map(item => `
+      this.essentialsPreviewList.innerHTML = items.slice(0, 6).map(item => `
         <div class="essential-preview-row">
           <span class="essential-preview-name">${this.escapeHTML(item.name)}</span>
           <span class="essential-preview-amount">${FinanceCalc.formatVND(item.amount)}</span>
@@ -379,8 +568,38 @@ class AppController {
     }
 
     // 4. Render Charts
-    FinanceCharts.renderExpensePieChart('expensePieChart', currentMonth);
+    FinanceCharts.renderExpensePieChart('expensePieChart', displayRecord);
     FinanceCharts.renderHistoryLineChart('historyLineChart', months);
+  }
+
+  renderFilterMonthOptions() {
+    const months = storage.getMonths();
+    if (months.length === 0) {
+      this.filterMonthOptions.innerHTML = `<p class="text-muted text-center py-2">Chưa có kì lương nào.</p>`;
+      return;
+    }
+
+    this.filterMonthOptions.innerHTML = months.map(m => {
+      const isSelected = this.dashboardMode === 'custom' && this.customSelectedMonthId === m.id;
+      return `
+        <div class="filter-option-item ${isSelected ? 'selected' : ''}" onclick="app.selectCustomMonth('${m.id}')">
+          <div>
+            <strong>Tháng ${m.month}/${m.year}</strong>
+            <span class="text-caption" style="display: block;">${this.escapeHTML(m.company)} • ${m.type || 'Chính thức'}</span>
+          </div>
+          <span style="font-weight: 700; color: #60a5fa;">${FinanceCalc.formatVND(m.netSalary)}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  selectCustomMonth(monthId) {
+    this.dashboardMode = 'custom';
+    this.customSelectedMonthId = monthId;
+    this.closeModal(this.modalFilterSheet);
+    this.updateDashboardFilterUI();
+    this.renderDashboard();
+    this.showToast('Đã lọc theo kì bạn chọn!');
   }
 
   // ================= VIEW: MONTHLY RECORDS =================
@@ -459,7 +678,6 @@ class AppController {
     this.formMonthly.reset();
     this.monthRecordId.value = '';
 
-    // Suggest next month based on latest record
     const months = storage.getMonths();
     if (months.length > 0) {
       const latest = months[0];
@@ -473,7 +691,7 @@ class AppController {
       this.mMonth.value = nextMonth;
       this.mCompany.value = latest.company;
       this.mType.value = 'Chính thức';
-      this.mSalary.value = 18970380; // Official salary default
+      this.mSalary.value = 18970380;
       this.mTax.value = 0;
       this.mBonus.value = 0;
       this.mStudy.value = 5000000;
@@ -483,7 +701,6 @@ class AppController {
       this.mExpectedBalance.value = latest.actualBalance || 5000000;
       this.mActualBalance.value = latest.actualBalance || 5000000;
 
-      // Copy previous essentials as base
       this.renderModalEssentialsRows(latest.essentialsList || []);
     } else {
       this.mYear.value = 2026;
@@ -546,7 +763,6 @@ class AppController {
       <button type="button" class="btn-remove-subitem" title="Xóa mục"><i data-lucide="minus-circle"></i></button>
     `;
 
-    // Event listeners for recalculation
     const amountInput = row.querySelector('.subitem-amount');
     amountInput.addEventListener('input', () => this.recalculateMonthlyFormulas());
 
@@ -561,9 +777,7 @@ class AppController {
     this.recalculateMonthlyFormulas();
   }
 
-  // LIVE FORMULA CALCULATION
   recalculateMonthlyFormulas() {
-    // 1. Thực nhận = Lương - Khấu trừ + Thưởng
     const netSalary = FinanceCalc.calcNetSalary(
       this.mSalary.value,
       this.mTax.value,
@@ -571,7 +785,6 @@ class AppController {
     );
     this.mNetSalary.value = netSalary;
 
-    // 2. Tổng Nhu cầu thiết yếu = Tổng các dòng con
     const subitemAmounts = this.modalEssentialsList.querySelectorAll('.subitem-amount');
     let essentialSum = 0;
     subitemAmounts.forEach(input => {
@@ -579,7 +792,6 @@ class AppController {
     });
     this.mEssentialTotal.value = essentialSum;
 
-    // 3. Tiền tiêu còn lại = Thực nhận - (Học + Gửi bố mẹ + Tiết kiệm + Đầu tư + Thiết yếu)
     const freeMoney = FinanceCalc.calcFreeMoney(
       netSalary,
       this.mStudy.value,
@@ -592,7 +804,6 @@ class AppController {
   }
 
   handleSaveMonth() {
-    // Collect essentials
     const rows = this.modalEssentialsList.querySelectorAll('.subitem-row');
     const essentialsList = [];
     rows.forEach(row => {
@@ -635,8 +846,7 @@ class AppController {
       actualBalance: FinanceCalc.toNumber(this.mActualBalance.value)
     };
 
-    const saved = storage.saveMonth(record);
-    this.selectedMonthId = saved.id;
+    storage.saveMonth(record);
     this.closeModal(this.modalMonthly);
     this.showToast('Đã lưu dữ liệu kì lương thành công!');
     this.refreshAll();
@@ -654,7 +864,6 @@ class AppController {
   renderCashflow() {
     const allTxs = storage.getCashflows();
     
-    // Calculate total summary
     let totalIncome = 0;
     let totalExpense = 0;
     allTxs.forEach(t => {
@@ -667,7 +876,6 @@ class AppController {
     const diff = totalIncome - totalExpense;
     this.cfNetBalance.textContent = FinanceCalc.formatVNDCompact(diff);
 
-    // Apply Filter
     let filtered = allTxs;
     if (this.cashflowFilter !== 'all') {
       filtered = allTxs.filter(t => t.type === this.cashflowFilter);
@@ -769,7 +977,6 @@ class AppController {
 
     this.basketsCountBadge.textContent = `${baskets.length} rỏ tài sản`;
 
-    // Render Baskets List
     if (baskets.length === 0) {
       this.basketsContainer.innerHTML = `
         <div class="text-center py-4 text-muted" style="border: 1px dashed var(--border-subtle); border-radius: var(--radius-lg); padding: 24px 16px;">
@@ -882,6 +1089,147 @@ class AppController {
       this.showToast('Đã xóa rỏ đầu tư!');
       this.renderPortfolio();
     }
+  }
+
+  // ================= VIEW: TRUY VẤN SỐ LIỆU (MỚI) =================
+  populateQueryMonthSelects() {
+    const months = storage.getMonths();
+    this.queryStartMonth.innerHTML = '';
+    this.queryEndMonth.innerHTML = '';
+
+    if (months.length === 0) return;
+
+    // Sort ascending for range dropdowns
+    const ascending = [...months].sort((a, b) => (a.year !== b.year ? a.year - b.year : a.month - b.month));
+
+    ascending.forEach((m, idx) => {
+      const val = `${m.year}-${String(m.month).padStart(2, '0')}`;
+      const text = `T${m.month}/${m.year}`;
+
+      const optStart = document.createElement('option');
+      optStart.value = val;
+      optStart.textContent = text;
+      if (idx === 0) optStart.selected = true;
+      this.queryStartMonth.appendChild(optStart);
+
+      const optEnd = document.createElement('option');
+      optEnd.value = val;
+      optEnd.textContent = text;
+      if (idx === ascending.length - 1) optEnd.selected = true;
+      this.queryEndMonth.appendChild(optEnd);
+    });
+  }
+
+  renderQueryView() {
+    const allMonths = storage.getMonths();
+    if (allMonths.length === 0) {
+      this.qTotalIncome.textContent = '0 ₫';
+      this.qTotalExpense.textContent = '0 ₫';
+      this.qTotalSavings.textContent = '0 ₫';
+      this.qTotalFreeMoney.textContent = '0 ₫';
+      return;
+    }
+
+    // Filter months according to queryRange
+    let filteredMonths = allMonths;
+
+    if (this.queryRange === 'year_2026') {
+      filteredMonths = allMonths.filter(m => m.year === 2026);
+      this.queryResultRangeBadge.textContent = `Năm 2026 (${filteredMonths.length} kì)`;
+    } else if (this.queryRange === 'custom') {
+      const start = this.queryStartMonth.value;
+      const end = this.queryEndMonth.value;
+      filteredMonths = allMonths.filter(m => {
+        const key = `${m.year}-${String(m.month).padStart(2, '0')}`;
+        return (!start || key >= start) && (!end || key <= end);
+      });
+      this.queryResultRangeBadge.textContent = `Tùy chọn (${filteredMonths.length} kì)`;
+    } else {
+      this.queryResultRangeBadge.textContent = `Toàn bộ (${filteredMonths.length} kì)`;
+    }
+
+    this.queryMonthsCount.textContent = `${filteredMonths.length} kì`;
+
+    // Aggregates
+    let totalIncome = 0;
+    let totalStudy = 0;
+    let totalParents = 0;
+    let totalSaving = 0;
+    let totalInvestment = 0;
+    let totalEssential = 0;
+    let totalFree = 0;
+
+    filteredMonths.forEach(m => {
+      totalIncome += FinanceCalc.calcNetSalary(m.salary, m.tax, m.bonus);
+      totalStudy += FinanceCalc.toNumber(m.study);
+      totalParents += FinanceCalc.toNumber(m.parents);
+      totalSaving += FinanceCalc.toNumber(m.saving);
+      totalInvestment += FinanceCalc.toNumber(m.investment);
+      totalEssential += FinanceCalc.toNumber(m.essentialTotal);
+      totalFree += FinanceCalc.toNumber(m.freeMoney);
+    });
+
+    const totalSpending = totalStudy + totalParents + totalEssential + Math.max(0, totalFree);
+    const count = Math.max(1, filteredMonths.length);
+    const avgIncome = totalIncome / count;
+    const avgExpense = totalSpending / count;
+    const totalAccumulate = totalSaving + totalInvestment;
+    const avgRate = totalIncome > 0 ? (totalAccumulate / totalIncome) * 100 : 0;
+
+    this.queryAvgRateBadge.textContent = `Tích lũy TB: ${avgRate.toFixed(1)}%`;
+    this.qTotalIncome.textContent = FinanceCalc.formatVND(totalIncome);
+    this.qAvgMonthlyIncome.textContent = `TB: ${FinanceCalc.formatVNDCompact(avgIncome)}/tháng`;
+
+    this.qTotalExpense.textContent = FinanceCalc.formatVND(totalSpending);
+    this.qAvgMonthlyExpense.textContent = `TB: ${FinanceCalc.formatVNDCompact(avgExpense)}/tháng`;
+
+    this.qTotalSavings.textContent = FinanceCalc.formatVND(totalAccumulate);
+    this.qTotalInvested.textContent = `Đầu tư: ${FinanceCalc.formatVND(totalInvestment)}`;
+
+    this.qTotalFreeMoney.textContent = FinanceCalc.formatVND(totalFree);
+    const lastMonth = filteredMonths[0];
+    this.qActualEndBalance.textContent = `Số dư cuối: ${FinanceCalc.formatVND(lastMonth ? lastMonth.actualBalance : 0)}`;
+
+    // Breakdown Ranking
+    const breakdown = [
+      { name: 'Tiền tiêu còn lại', val: Math.max(0, totalFree), color: '#3b82f6' },
+      { name: 'Gửi bố mẹ', val: totalParents, color: '#f97316' },
+      { name: 'Học tập', val: totalStudy, color: '#a855f7' },
+      { name: 'Nhu cầu thiết yếu', val: totalEssential, color: '#06b6d4' },
+      { name: 'Tiết kiệm', val: totalSaving, color: '#10b981' },
+      { name: 'Đầu tư', val: totalInvestment, color: '#f59e0b' }
+    ].sort((a, b) => b.val - a.val);
+
+    const maxVal = Math.max(1, ...breakdown.map(b => b.val));
+
+    this.queryBreakdownList.innerHTML = breakdown.map(item => {
+      const pctBar = ((item.val / maxVal) * 100).toFixed(0);
+      const pctTotal = totalIncome > 0 ? ((item.val / totalIncome) * 100).toFixed(1) : 0;
+      return `
+        <div class="qb-row">
+          <div class="qb-header">
+            <span class="qb-name">${item.name} (${pctTotal}%)</span>
+            <span class="qb-val">${FinanceCalc.formatVND(item.val)}</span>
+          </div>
+          <div class="qb-bar-track">
+            <div class="qb-bar-fill" style="width: ${pctBar}%; background-color: ${item.color};"></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Detailed Months Table
+    this.queryMonthsTable.innerHTML = filteredMonths.map(m => {
+      const net = FinanceCalc.calcNetSalary(m.salary, m.tax, m.bonus);
+      const acc = FinanceCalc.toNumber(m.saving) + FinanceCalc.toNumber(m.investment);
+      return `
+        <div class="qm-row">
+          <span class="qm-col-month">T${m.month}/${m.year}</span>
+          <span class="qm-col-net">Thu: ${FinanceCalc.formatVNDCompact(net)}</span>
+          <span class="qm-col-save">Tích lũy: ${FinanceCalc.formatVNDCompact(acc)}</span>
+        </div>
+      `;
+    }).join('');
   }
 
   // ================= MODAL & TOAST HELPERS =================
