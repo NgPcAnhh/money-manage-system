@@ -134,11 +134,11 @@ class AppController {
     this.queryMonthsTable = document.getElementById('queryMonthsTable');
     this.queryMonthsCount = document.getElementById('queryMonthsCount');
 
-    // Persistence & Backup
-    this.btnExportJSON = document.getElementById('btnExportJSON');
-    this.inputImportJSON = document.getElementById('inputImportJSON');
-    this.btnHeaderBackup = document.getElementById('btnHeaderBackup');
+    // Header & Theme Elements
+    this.paydayCountdownText = document.getElementById('paydayCountdownText');
+    this.paydayTargetDate = document.getElementById('paydayTargetDate');
     this.btnToggleTheme = document.getElementById('btnToggleTheme');
+    this.themeIcon = document.getElementById('themeIcon');
     this.toastNotification = document.getElementById('toastNotification');
     this.toastMessage = document.getElementById('toastMessage');
   }
@@ -152,18 +152,13 @@ class AppController {
       });
     });
 
-    // 2. Theme Toggle
+    // 2. Theme Toggle Switch
     this.btnToggleTheme.addEventListener('click', () => {
       document.body.classList.toggle('theme-light');
       const isLight = document.body.classList.contains('theme-light');
       localStorage.setItem('mms_theme', isLight ? 'light' : 'dark');
-      this.showToast(isLight ? 'Đã đổi giao diện Sáng' : 'Đã đổi giao diện Tối');
-    });
-
-    // 3. Header Backup Shortcut (Jump to Query & Backup tab)
-    this.btnHeaderBackup.addEventListener('click', () => {
-      this.goToSlide(4); // Jump to Query & Backup Slide
-      this.showToast('Truy cập công cụ Sao lưu & Tra cứu số liệu');
+      this.updateThemeIcon(isLight);
+      this.showToast(isLight ? 'Đã đổi sang giao diện Sáng' : 'Đã đổi sang giao diện Tối');
     });
 
     // 4. Dashboard Quick Toggles
@@ -405,14 +400,68 @@ class AppController {
   // ================= APP INITIALIZATION =================
   initApp() {
     const savedTheme = localStorage.getItem('mms_theme');
-    if (savedTheme === 'light') {
+    const isLight = savedTheme === 'light';
+    if (isLight) {
       document.body.classList.add('theme-light');
     }
+    this.updateThemeIcon(isLight);
 
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('cfDate').value = today;
 
     this.refreshAll();
+  }
+
+  updateThemeIcon(isLight) {
+    if (!this.themeIcon) return;
+    this.themeIcon.setAttribute('data-lucide', isLight ? 'sun' : 'moon');
+    if (window.lucide) lucide.createIcons();
+  }
+
+  updatePaydayCountdown(record) {
+    const now = new Date();
+    const todayDate = now.getDate();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1; // 1-12
+
+    let refYear = currentYear;
+    let refMonth = currentMonth;
+
+    if (record && typeof record.month === 'number' && typeof record.year === 'number') {
+      refYear = record.year;
+      refMonth = record.month;
+    }
+
+    const todayZero = new Date(currentYear, now.getMonth(), todayDate);
+    const targetPayDate = new Date(refYear, refMonth - 1, 28);
+    const diffTime = targetPayDate.getTime() - todayZero.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+    if (!this.paydayCountdownText || !this.paydayTargetDate) return;
+
+    if (diffDays > 0) {
+      this.paydayCountdownText.innerHTML = `Còn <strong>${diffDays} ngày</strong> nhận lương`;
+      this.paydayTargetDate.textContent = `So với ngày 28/${String(refMonth).padStart(2, '0')}/${refYear}`;
+    } else if (diffDays === 0) {
+      this.paydayCountdownText.innerHTML = `🎉 <strong>Hôm nay ngày 28 nhận lương!</strong>`;
+      this.paydayTargetDate.textContent = `Kì lương 28/${String(refMonth).padStart(2, '0')}/${refYear}`;
+    } else {
+      // If viewed month's 28th has passed relative to today, show days to the upcoming 28th
+      let nextPayDate = new Date(currentYear, now.getMonth(), 28);
+      if (todayDate > 28) {
+        nextPayDate = new Date(currentYear, now.getMonth() + 1, 28);
+      }
+      const daysToNext = Math.round((nextPayDate.getTime() - todayZero.getTime()) / (1000 * 60 * 60 * 24));
+      const nextMonthNum = nextPayDate.getMonth() + 1;
+
+      if (daysToNext === 0) {
+        this.paydayCountdownText.innerHTML = `🎉 <strong>Hôm nay nhận lương!</strong>`;
+        this.paydayTargetDate.textContent = `Ngày 28/${String(nextMonthNum).padStart(2, '0')}`;
+      } else {
+        this.paydayCountdownText.innerHTML = `Còn <strong>${daysToNext} ngày</strong> nhận lương`;
+        this.paydayTargetDate.textContent = `Kì tới: Ngày 28/${String(nextMonthNum).padStart(2, '0')}`;
+      }
+    }
   }
 
   refreshAll() {
@@ -524,7 +573,9 @@ class AppController {
       displayRecord = months[0];
     }
 
-    // 1. Calculations
+    // 1. Calculations & Payday Countdown
+    this.updatePaydayCountdown(displayRecord);
+
     const netSalary = FinanceCalc.toNumber(displayRecord.netSalary);
     const saveInvestTotal = FinanceCalc.toNumber(displayRecord.saving) + FinanceCalc.toNumber(displayRecord.investment);
     const totalSpending = FinanceCalc.calcTotalSpending(

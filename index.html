@@ -44,23 +44,20 @@
         </div>
       </div>
 
-      <!-- Compact App Header -->
+      <!-- Compact App Header: Payday Countdown & Theme Switch Only -->
       <header class="app-header">
-        <div class="header-left">
-          <div class="user-avatar">
-            <span>MB</span>
+        <div class="payday-countdown-box" id="paydayCountdownBox">
+          <div class="payday-icon-wrap">
+            <i data-lucide="calendar-clock"></i>
           </div>
-          <div class="header-titles">
-            <span class="user-greeting">Xin chào,</span>
-            <h1 class="user-name">IT Risk Specialist</h1>
+          <div class="payday-text-wrap">
+            <div class="payday-main-info" id="paydayCountdownText">Còn -- ngày nhận lương</div>
+            <div class="payday-sub-info" id="paydayTargetDate">Mục tiêu: Ngày 28 hàng tháng</div>
           </div>
         </div>
         <div class="header-actions">
-          <button class="icon-btn" id="btnToggleTheme" title="Chuyển chế độ sáng/tối">
-            <i data-lucide="moon"></i>
-          </button>
-          <button class="icon-btn" id="btnHeaderBackup" title="Sao lưu / Khôi phục">
-            <i data-lucide="hard-drive-download"></i>
+          <button class="icon-btn theme-switch-btn" id="btnToggleTheme" title="Chuyển chế độ sáng/tối">
+            <i data-lucide="moon" id="themeIcon"></i>
           </button>
         </div>
       </header>
