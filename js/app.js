@@ -72,8 +72,23 @@ class AppController {
     this.formMonthly = document.getElementById('formMonthly');
     this.btnCloseModalMonthly = document.getElementById('btnCloseModalMonthly');
     this.btnCancelMonthly = document.getElementById('btnCancelMonthly');
+    
+    // Accordion in Monthly Modal
+    this.accordionItems = document.querySelectorAll('#modalMonthly .accordion-item');
+    this.accordionHeaders = document.querySelectorAll('#modalMonthly .accordion-header');
+    this.accBadgeIncome = document.getElementById('accBadgeIncome');
+    this.accBadgeFunds = document.getElementById('accBadgeFunds');
+    this.accBadgeEssentials = document.getElementById('accBadgeEssentials');
+    this.accBadgeFreeMoney = document.getElementById('accBadgeFreeMoney');
+
+    // Dynamic Lists in Monthly Modal
+    this.btnAddFundItemModal = document.getElementById('btnAddFundItemModal');
+    this.modalFundsList = document.getElementById('modalFundsList');
+    this.mFundTotal = document.getElementById('mFundTotal');
+
     this.btnAddEssentialItemModal = document.getElementById('btnAddEssentialItemModal');
     this.modalEssentialsList = document.getElementById('modalEssentialsList');
+    this.mEssentialTotal = document.getElementById('mEssentialTotal');
 
     // Monthly Form Fields (for live formulas)
     this.monthRecordId = document.getElementById('monthRecordId');
@@ -85,11 +100,6 @@ class AppController {
     this.mTax = document.getElementById('mTax');
     this.mBonus = document.getElementById('mBonus');
     this.mNetSalary = document.getElementById('mNetSalary');
-    this.mStudy = document.getElementById('mStudy');
-    this.mParents = document.getElementById('mParents');
-    this.mSaving = document.getElementById('mSaving');
-    this.mInvestment = document.getElementById('mInvestment');
-    this.mEssentialTotal = document.getElementById('mEssentialTotal');
     this.mFreeMoney = document.getElementById('mFreeMoney');
     this.mExpectedBalance = document.getElementById('mExpectedBalance');
     this.mActualBalance = document.getElementById('mActualBalance');
@@ -216,15 +226,34 @@ class AppController {
     this.btnOpenNewMonthModal.addEventListener('click', () => this.openNewMonthModal());
     this.btnCloseModalMonthly.addEventListener('click', () => this.closeModal(this.modalMonthly));
     this.btnCancelMonthly.addEventListener('click', () => this.closeModal(this.modalMonthly));
-    this.btnAddEssentialItemModal.addEventListener('click', () => this.addEssentialItemRow());
+    
+    // Accordion Toggle Handlers
+    if (this.accordionHeaders) {
+      this.accordionHeaders.forEach(header => {
+        header.addEventListener('click', () => {
+          const accItem = header.closest('.accordion-item');
+          if (accItem) {
+            accItem.classList.toggle('expanded');
+            if (window.lucide) lucide.createIcons();
+          }
+        });
+      });
+    }
 
-    // Formula Triggers
-    const formulaInputs = [
-      this.mSalary, this.mTax, this.mBonus,
-      this.mStudy, this.mParents, this.mSaving, this.mInvestment
-    ];
+    if (this.btnAddFundItemModal) {
+      this.btnAddFundItemModal.addEventListener('click', () => this.addFundItemRow());
+    }
+
+    if (this.btnAddEssentialItemModal) {
+      this.btnAddEssentialItemModal.addEventListener('click', () => this.addEssentialItemRow());
+    }
+
+    // Formula Triggers on Salary & Bonus
+    const formulaInputs = [this.mSalary, this.mTax, this.mBonus];
     formulaInputs.forEach(input => {
-      input.addEventListener('input', () => this.recalculateMonthlyFormulas());
+      if (input) {
+        input.addEventListener('input', () => this.recalculateMonthlyFormulas());
+      }
     });
 
     this.formMonthly.addEventListener('submit', (e) => {
@@ -815,7 +844,26 @@ class AppController {
     this.formMonthly.reset();
     this.monthRecordId.value = '';
 
+    // Mặc định thu gọn tất cả các mục
+    if (this.accordionItems) {
+      this.accordionItems.forEach(item => item.classList.remove('expanded'));
+    }
+
     const months = storage.getMonths();
+    const defaultFunds = [
+      { name: 'Học tập', amount: 3000000 },
+      { name: 'Tiền gửi bố mẹ', amount: 3500000 },
+      { name: 'Tiền Tiết kiệm', amount: 2000000 },
+      { name: 'Tiền đầu tư', amount: 0 }
+    ];
+    const defaultEssentials = [
+      { name: 'ChatGPT', amount: 340000 },
+      { name: 'cut toc', amount: 100000 },
+      { name: 'old spice', amount: 50000 },
+      { name: 'mạng', amount: 90000 },
+      { name: 'BCS', amount: 300000 }
+    ];
+
     if (months.length > 0) {
       const latest = months[0];
       let nextMonth = latest.month + 1;
@@ -831,27 +879,20 @@ class AppController {
       this.mSalary.value = 18970380;
       this.mTax.value = 0;
       this.mBonus.value = 0;
-      this.mStudy.value = 5000000;
-      this.mParents.value = 3500000;
-      this.mSaving.value = 0;
-      this.mInvestment.value = 1000000;
       this.mExpectedBalance.value = latest.actualBalance || 5000000;
       this.mActualBalance.value = latest.actualBalance || 5000000;
 
-      this.renderModalEssentialsRows(latest.essentialsList || []);
+      const fundsToUse = latest.fundsList && latest.fundsList.length > 0 ? latest.fundsList : defaultFunds;
+      this.renderModalFundsRows(fundsToUse);
+      this.renderModalEssentialsRows(latest.essentialsList || defaultEssentials);
     } else {
       this.mYear.value = 2026;
       this.mMonth.value = 9;
       this.mCompany.value = 'MB - IT Risk - CV lv1';
       this.mType.value = 'Thử việc';
       this.mSalary.value = 13351500;
-      this.renderModalEssentialsRows([
-        { name: 'ChatGPT', amount: 340000 },
-        { name: 'cut toc', amount: 100000 },
-        { name: 'old spice', amount: 50000 },
-        { name: 'mạng', amount: 90000 },
-        { name: 'BCS', amount: 300000 }
-      ]);
+      this.renderModalFundsRows(defaultFunds);
+      this.renderModalEssentialsRows(defaultEssentials);
     }
 
     this.recalculateMonthlyFormulas();
@@ -871,19 +912,66 @@ class AppController {
     this.mSalary.value = record.salary || 0;
     this.mTax.value = record.tax || 0;
     this.mBonus.value = record.bonus || 0;
-    this.mStudy.value = record.study || 0;
-    this.mParents.value = record.parents || 0;
-    this.mSaving.value = record.saving || 0;
-    this.mInvestment.value = record.investment || 0;
     this.mExpectedBalance.value = record.expectedBalance || 0;
     this.mActualBalance.value = record.actualBalance || 0;
 
+    // Mặc định thu gọn tất cả các mục
+    if (this.accordionItems) {
+      this.accordionItems.forEach(item => item.classList.remove('expanded'));
+    }
+
+    let funds = record.fundsList;
+    if (!funds || funds.length === 0) {
+      funds = [
+        { name: 'Học tập', amount: record.study || 0 },
+        { name: 'Tiền gửi bố mẹ', amount: record.parents || 0 },
+        { name: 'Tiền Tiết kiệm', amount: record.saving || 0 },
+        { name: 'Tiền đầu tư', amount: record.investment || 0 }
+      ];
+    }
+    this.renderModalFundsRows(funds);
     this.renderModalEssentialsRows(record.essentialsList || []);
     this.recalculateMonthlyFormulas();
     this.openModal(this.modalMonthly);
   }
 
+  renderModalFundsRows(items = []) {
+    if (!this.modalFundsList) return;
+    this.modalFundsList.innerHTML = '';
+    items.forEach(item => {
+      this.addFundItemRow(item.name, item.amount);
+    });
+    this.recalculateMonthlyFormulas();
+  }
+
+  addFundItemRow(name = '', amount = 0) {
+    if (!this.modalFundsList) return;
+    const row = document.createElement('div');
+    row.className = 'dynamic-item-card';
+    row.innerHTML = `
+      <input type="text" class="form-input item-name" placeholder="Tên quỹ (Ví dụ: Tiền tiết kiệm)" value="${this.escapeHTML(name)}">
+      <input type="number" class="form-input item-amount formula-trigger" placeholder="Số tiền" value="${amount !== 0 ? amount : ''}">
+      <button type="button" class="btn-remove-item" title="Xóa quỹ"><i data-lucide="trash-2"></i></button>
+    `;
+
+    const amountInput = row.querySelector('.item-amount');
+    const nameInput = row.querySelector('.item-name');
+    amountInput.addEventListener('input', () => this.recalculateMonthlyFormulas());
+    nameInput.addEventListener('input', () => this.recalculateMonthlyFormulas());
+
+    const removeBtn = row.querySelector('.btn-remove-item');
+    removeBtn.addEventListener('click', () => {
+      row.remove();
+      this.recalculateMonthlyFormulas();
+    });
+
+    this.modalFundsList.appendChild(row);
+    if (window.lucide) lucide.createIcons();
+    this.recalculateMonthlyFormulas();
+  }
+
   renderModalEssentialsRows(items = []) {
+    if (!this.modalEssentialsList) return;
     this.modalEssentialsList.innerHTML = '';
     items.forEach(item => {
       this.addEssentialItemRow(item.name, item.amount);
@@ -892,75 +980,114 @@ class AppController {
   }
 
   addEssentialItemRow(name = '', amount = 0) {
+    if (!this.modalEssentialsList) return;
     const row = document.createElement('div');
-    row.className = 'subitem-row';
+    row.className = 'dynamic-item-card';
     row.innerHTML = `
-      <input type="text" class="form-input subitem-name" placeholder="Tên mục (Ví dụ: Tiền mạng)" value="${this.escapeHTML(name)}">
-      <input type="number" class="form-input subitem-amount formula-trigger" placeholder="Số tiền" value="${amount || ''}">
-      <button type="button" class="btn-remove-subitem" title="Xóa mục"><i data-lucide="minus-circle"></i></button>
+      <input type="text" class="form-input item-name" placeholder="Tên mục (Ví dụ: Tiền mạng)" value="${this.escapeHTML(name)}">
+      <input type="number" class="form-input item-amount formula-trigger" placeholder="Số tiền" value="${amount !== 0 ? amount : ''}">
+      <button type="button" class="btn-remove-item" title="Xóa mục"><i data-lucide="trash-2"></i></button>
     `;
 
-    const amountInput = row.querySelector('.subitem-amount');
+    const amountInput = row.querySelector('.item-amount');
+    const nameInput = row.querySelector('.item-name');
     amountInput.addEventListener('input', () => this.recalculateMonthlyFormulas());
+    nameInput.addEventListener('input', () => this.recalculateMonthlyFormulas());
 
-    const removeBtn = row.querySelector('.btn-remove-subitem');
+    const removeBtn = row.querySelector('.btn-remove-item');
     removeBtn.addEventListener('click', () => {
       row.remove();
       this.recalculateMonthlyFormulas();
     });
 
     this.modalEssentialsList.appendChild(row);
-    lucide.createIcons();
+    if (window.lucide) lucide.createIcons();
     this.recalculateMonthlyFormulas();
   }
 
   recalculateMonthlyFormulas() {
+    // 1. Thực nhận
     const netSalary = FinanceCalc.calcNetSalary(
-      this.mSalary.value,
-      this.mTax.value,
-      this.mBonus.value
+      this.mSalary ? this.mSalary.value : 0,
+      this.mTax ? this.mTax.value : 0,
+      this.mBonus ? this.mBonus.value : 0
     );
-    this.mNetSalary.value = netSalary;
+    if (this.mNetSalary) this.mNetSalary.value = netSalary;
 
-    const subitemAmounts = this.modalEssentialsList.querySelectorAll('.subitem-amount');
+    // 2. Tổng Phân Bổ Quỹ (tính tổng từ các dòng quỹ động xếp dọc)
+    let fundSum = 0;
+    if (this.modalFundsList) {
+      const fundAmounts = this.modalFundsList.querySelectorAll('.item-amount');
+      fundAmounts.forEach(input => {
+        fundSum += FinanceCalc.toNumber(input.value);
+      });
+    }
+    if (this.mFundTotal) this.mFundTotal.value = fundSum;
+
+    // 3. Tổng Nhu Cầu Thiết Yếu (tính tổng từ các dòng thiết yếu động xếp dọc)
     let essentialSum = 0;
-    subitemAmounts.forEach(input => {
-      essentialSum += FinanceCalc.toNumber(input.value);
-    });
-    this.mEssentialTotal.value = essentialSum;
+    if (this.modalEssentialsList) {
+      const essentialAmounts = this.modalEssentialsList.querySelectorAll('.item-amount');
+      essentialAmounts.forEach(input => {
+        essentialSum += FinanceCalc.toNumber(input.value);
+      });
+    }
+    if (this.mEssentialTotal) this.mEssentialTotal.value = essentialSum;
 
-    const freeMoney = FinanceCalc.calcFreeMoney(
-      netSalary,
-      this.mStudy.value,
-      this.mParents.value,
-      this.mSaving.value,
-      this.mInvestment.value,
-      essentialSum
-    );
-    this.mFreeMoney.value = freeMoney;
+    // 4. Tiền Tiêu Còn Lại = Thực nhận - (Tổng quỹ + Tổng thiết yếu)
+    const freeMoney = netSalary - (fundSum + essentialSum);
+    if (this.mFreeMoney) this.mFreeMoney.value = freeMoney;
+
+    // 5. Cập nhật Badge tóm tắt trên từng Header Accordion khi thu gọn
+    if (this.accBadgeIncome) this.accBadgeIncome.textContent = FinanceCalc.formatVNDCompact(netSalary);
+    if (this.accBadgeFunds) this.accBadgeFunds.textContent = FinanceCalc.formatVNDCompact(fundSum);
+    if (this.accBadgeEssentials) this.accBadgeEssentials.textContent = FinanceCalc.formatVNDCompact(essentialSum);
+    if (this.accBadgeFreeMoney) this.accBadgeFreeMoney.textContent = FinanceCalc.formatVNDCompact(freeMoney);
   }
 
   handleSaveMonth() {
-    const rows = this.modalEssentialsList.querySelectorAll('.subitem-row');
+    // Collect funds
+    const fundsList = [];
+    let fundTotal = 0;
+    let study = 0;
+    let parents = 0;
+    let saving = 0;
+    let investment = 0;
+
+    if (this.modalFundsList) {
+      const fundRows = this.modalFundsList.querySelectorAll('.dynamic-item-card');
+      fundRows.forEach(row => {
+        const name = row.querySelector('.item-name').value.trim();
+        const amount = FinanceCalc.toNumber(row.querySelector('.item-amount').value);
+        if (name) {
+          fundsList.push({ name, amount });
+          fundTotal += amount;
+          const lower = name.toLowerCase();
+          if (lower.includes('học')) study += amount;
+          else if (lower.includes('bố') || lower.includes('mẹ') || lower.includes('ba')) parents += amount;
+          else if (lower.includes('tiết kiệm')) saving += amount;
+          else if (lower.includes('đầu tư')) investment += amount;
+        }
+      });
+    }
+
+    // Collect essentials
     const essentialsList = [];
-    rows.forEach(row => {
-      const name = row.querySelector('.subitem-name').value.trim();
-      const amount = FinanceCalc.toNumber(row.querySelector('.subitem-amount').value);
-      if (name) {
-        essentialsList.push({ name, amount });
-      }
-    });
+    let essentialTotal = 0;
+    if (this.modalEssentialsList) {
+      const essRows = this.modalEssentialsList.querySelectorAll('.dynamic-item-card');
+      essRows.forEach(row => {
+        const name = row.querySelector('.item-name').value.trim();
+        const amount = FinanceCalc.toNumber(row.querySelector('.item-amount').value);
+        if (name) {
+          essentialsList.push({ name, amount });
+          essentialTotal += amount;
+        }
+      });
+    }
 
     const netSalary = FinanceCalc.calcNetSalary(this.mSalary.value, this.mTax.value, this.mBonus.value);
-    const essentialTotal = FinanceCalc.calcEssentialTotal(essentialsList);
-    const freeMoney = FinanceCalc.calcFreeMoney(
-      netSalary,
-      this.mStudy.value,
-      this.mParents.value,
-      this.mSaving.value,
-      this.mInvestment.value,
-      essentialTotal
-    );
+    const freeMoney = netSalary - (fundTotal + essentialTotal);
 
     const record = {
       id: this.monthRecordId.value || undefined,
@@ -972,10 +1099,12 @@ class AppController {
       tax: FinanceCalc.toNumber(this.mTax.value),
       bonus: FinanceCalc.toNumber(this.mBonus.value),
       netSalary: netSalary,
-      study: FinanceCalc.toNumber(this.mStudy.value),
-      parents: FinanceCalc.toNumber(this.mParents.value),
-      saving: FinanceCalc.toNumber(this.mSaving.value),
-      investment: FinanceCalc.toNumber(this.mInvestment.value),
+      fundsList: fundsList,
+      fundTotal: fundTotal,
+      study: study,
+      parents: parents,
+      saving: saving,
+      investment: investment,
       essentialsList: essentialsList,
       essentialTotal: essentialTotal,
       freeMoney: freeMoney,

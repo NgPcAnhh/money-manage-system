@@ -16,6 +16,13 @@ const SEED_MONTHLY_RECORD = {
   tax: 0,
   bonus: 2000000,
   netSalary: 15351500, // 13,351,500 - 0 + 2,000,000
+  fundsList: [
+    { name: 'Học tập', amount: 3000000 },
+    { name: 'Tiền gửi bố mẹ', amount: 3500000 },
+    { name: 'Tiền Tiết kiệm', amount: 2000000 },
+    { name: 'Tiền đầu tư', amount: 0 }
+  ],
+  fundTotal: 8500000,
   study: 3000000,
   parents: 3500000,
   saving: 2000000,

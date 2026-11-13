@@ -451,10 +451,20 @@
       <form id="formMonthly" class="modal-form">
         <input type="hidden" id="monthRecordId">
 
-        <div class="form-row">
-          <div class="form-group flex-2">
-            <label>Công ty / Vị trí</label>
-            <input type="text" id="mCompany" class="form-input" placeholder="MB - IT Risk - CV lv1" required>
+        <!-- Thông tin cơ bản kì lương (Luôn hiển thị ở trên) -->
+        <div class="form-group mb-2">
+          <label>Công ty / Vị trí</label>
+          <input type="text" id="mCompany" class="form-input" placeholder="MB - IT Risk - CV lv1" required>
+        </div>
+
+        <div class="form-row mb-2">
+          <div class="form-group flex-1">
+            <label>Năm</label>
+            <input type="number" id="mYear" class="form-input" value="2026" required>
+          </div>
+          <div class="form-group flex-1">
+            <label>Tháng</label>
+            <input type="number" id="mMonth" class="form-input" min="1" max="12" value="9" required>
           </div>
           <div class="form-group flex-1">
             <label>Hình thức</label>
@@ -466,105 +476,128 @@
           </div>
         </div>
 
-        <div class="form-row">
-          <div class="form-group flex-1">
-            <label>Năm</label>
-            <input type="number" id="mYear" class="form-input" value="2026" required>
+        <!-- Các Mục Thu Gọn / Mở Rộng (Mặc định thu gọn hết) -->
+        <div class="accordion-group mt-2">
+
+          <!-- MỤC 1: Thu Nhập & Khấu Trừ -->
+          <div class="accordion-item" id="accItemIncome">
+            <button type="button" class="accordion-header" data-acc="accItemIncome">
+              <div class="acc-title-wrap">
+                <span class="acc-step">1</span>
+                <span class="acc-title">Thu Nhập & Khấu Trừ</span>
+              </div>
+              <div class="acc-meta">
+                <span class="acc-badge" id="accBadgeIncome">15.351.500 ₫</span>
+                <i data-lucide="chevron-down" class="acc-chevron"></i>
+              </div>
+            </button>
+            <div class="accordion-content">
+              <div class="form-group mt-2">
+                <label>Lương Gross (₫)</label>
+                <input type="number" id="mSalary" class="form-input formula-trigger" placeholder="13351500" required>
+              </div>
+              <div class="form-group mt-2">
+                <label>Thuế & Khấu trừ (₫)</label>
+                <input type="number" id="mTax" class="form-input formula-trigger" placeholder="0" value="0">
+              </div>
+              <div class="form-group mt-2">
+                <label>Thưởng & Thêm (₫)</label>
+                <input type="number" id="mBonus" class="form-input formula-trigger" placeholder="2000000" value="0">
+              </div>
+              <div class="form-group mt-2">
+                <label>Thực nhận (₫) <span class="formula-tag">Tự tính</span></label>
+                <input type="number" id="mNetSalary" class="form-input calculated-field" readonly>
+              </div>
+            </div>
           </div>
-          <div class="form-group flex-1">
-            <label>Tháng</label>
-            <input type="number" id="mMonth" class="form-input" min="1" max="12" value="9" required>
+
+          <!-- MỤC 2: Phân Bổ Các Quỹ & Trách Nhiệm (Có Thêm/Bớt & Sắp xếp dọc) -->
+          <div class="accordion-item" id="accItemFunds">
+            <button type="button" class="accordion-header" data-acc="accItemFunds">
+              <div class="acc-title-wrap">
+                <span class="acc-step">2</span>
+                <span class="acc-title">Phân Bổ Quỹ & Trách Nhiệm</span>
+              </div>
+              <div class="acc-meta">
+                <span class="acc-badge" id="accBadgeFunds">8.500.000 ₫</span>
+                <i data-lucide="chevron-down" class="acc-chevron"></i>
+              </div>
+            </button>
+            <div class="accordion-content">
+              <div class="subitems-header-bar mt-2 mb-2">
+                <span class="text-caption">Danh sách các quỹ tháng này:</span>
+                <button type="button" class="btn btn-outline btn-xs" id="btnAddFundItemModal">
+                  <i data-lucide="plus"></i> Thêm Quỹ
+                </button>
+              </div>
+              <!-- Danh sách động xếp theo chiều dọc -->
+              <div id="modalFundsList" class="modal-subitems-vertical-list"></div>
+              <div class="form-group mt-2">
+                <label>Tổng Phân Bổ Quỹ (₫) <span class="formula-tag">Tự tính</span></label>
+                <input type="number" id="mFundTotal" class="form-input calculated-field" readonly>
+              </div>
+            </div>
           </div>
+
+          <!-- MỤC 3: Nhu Cầu Thiết Yếu (Có Thêm/Bớt & Sắp xếp dọc) -->
+          <div class="accordion-item" id="accItemEssentials">
+            <button type="button" class="accordion-header" data-acc="accItemEssentials">
+              <div class="acc-title-wrap">
+                <span class="acc-step">3</span>
+                <span class="acc-title">Nhu Cầu Thiết Yếu</span>
+              </div>
+              <div class="acc-meta">
+                <span class="acc-badge" id="accBadgeEssentials">880.000 ₫</span>
+                <i data-lucide="chevron-down" class="acc-chevron"></i>
+              </div>
+            </button>
+            <div class="accordion-content">
+              <div class="subitems-header-bar mt-2 mb-2">
+                <span class="text-caption">Danh mục thiết yếu chi tiết:</span>
+                <button type="button" class="btn btn-outline btn-xs" id="btnAddEssentialItemModal">
+                  <i data-lucide="plus"></i> Thêm Mục
+                </button>
+              </div>
+              <!-- Danh sách động xếp theo chiều dọc -->
+              <div id="modalEssentialsList" class="modal-subitems-vertical-list"></div>
+              <div class="form-group mt-2">
+                <label>Tổng Nhu Cầu Thiết Yếu (₫) <span class="formula-tag">Tự tính</span></label>
+                <input type="number" id="mEssentialTotal" class="form-input calculated-field" readonly>
+              </div>
+            </div>
+          </div>
+
+          <!-- MỤC 4: Tiền Tiêu Còn Lại & Số Dư -->
+          <div class="accordion-item" id="accItemBalance">
+            <button type="button" class="accordion-header" data-acc="accItemBalance">
+              <div class="acc-title-wrap">
+                <span class="acc-step">4</span>
+                <span class="acc-title">Tiền Tiêu Còn Lại & Số Dư</span>
+              </div>
+              <div class="acc-meta">
+                <span class="acc-badge" id="accBadgeFreeMoney">5.971.500 ₫</span>
+                <i data-lucide="chevron-down" class="acc-chevron"></i>
+              </div>
+            </button>
+            <div class="accordion-content">
+              <div class="form-group mt-2">
+                <label>Tiền tiêu còn lại (₫) <span class="formula-tag">Tự tính</span></label>
+                <input type="number" id="mFreeMoney" class="form-input calculated-field highlight" readonly>
+              </div>
+              <div class="form-group mt-2">
+                <label>Số dư dự kiến (₫)</label>
+                <input type="number" id="mExpectedBalance" class="form-input" placeholder="5000000" value="5000000">
+              </div>
+              <div class="form-group mt-2">
+                <label>Số dư thực tế (₫)</label>
+                <input type="number" id="mActualBalance" class="form-input" placeholder="5000000" value="5000000">
+              </div>
+            </div>
+          </div>
+
         </div>
 
-        <div class="form-group-divider">
-          <span>1. Thu Nhập & Khấu Trừ</span>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group flex-1">
-            <label>Lương (Gross) ₫</label>
-            <input type="number" id="mSalary" class="form-input formula-trigger" placeholder="13351500" required>
-          </div>
-          <div class="form-group flex-1">
-            <label>Thuế & Khấu trừ ₫</label>
-            <input type="number" id="mTax" class="form-input formula-trigger" placeholder="0" value="0">
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group flex-1">
-            <label>Thưởng & thêm ₫</label>
-            <input type="number" id="mBonus" class="form-input formula-trigger" placeholder="2000000" value="0">
-          </div>
-          <div class="form-group flex-1">
-            <label>Thực nhận ₫ <span class="formula-tag">Tự tính</span></label>
-            <input type="number" id="mNetSalary" class="form-input calculated-field" readonly>
-          </div>
-        </div>
-
-        <div class="form-group-divider">
-          <span>2. Phân Bổ Các Quỹ & Trách Nhiệm</span>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group flex-1">
-            <label>Học tập ₫</label>
-            <input type="number" id="mStudy" class="form-input formula-trigger" placeholder="3000000" value="0">
-          </div>
-          <div class="form-group flex-1">
-            <label>Tiền gửi bố mẹ ₫</label>
-            <input type="number" id="mParents" class="form-input formula-trigger" placeholder="3500000" value="0">
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group flex-1">
-            <label>Tiền Tiết kiệm ₫</label>
-            <input type="number" id="mSaving" class="form-input formula-trigger" placeholder="2000000" value="0">
-          </div>
-          <div class="form-group flex-1">
-            <label>Tiền đầu tư ₫</label>
-            <input type="number" id="mInvestment" class="form-input formula-trigger" placeholder="0" value="0">
-          </div>
-        </div>
-
-        <div class="form-group-divider">
-          <div class="divider-header">
-            <span>3. Nhu Cầu Thiết Yếu</span>
-            <button type="button" class="btn-link" id="btnAddEssentialItemModal">+ Thêm mục</button>
-          </div>
-        </div>
-
-        <div id="modalEssentialsList" class="modal-subitems-list"></div>
-
-        <div class="form-row mt-2">
-          <div class="form-group flex-1">
-            <label>Tổng Thiết yếu ₫ <span class="formula-tag">Tự tính</span></label>
-            <input type="number" id="mEssentialTotal" class="form-input calculated-field" readonly>
-          </div>
-          <div class="form-group flex-1">
-            <label>Tiền tiêu còn lại ₫ <span class="formula-tag">Tự tính</span></label>
-            <input type="number" id="mFreeMoney" class="form-input calculated-field highlight" readonly>
-          </div>
-        </div>
-
-        <div class="form-group-divider">
-          <span>4. Số Dư Tích Lũy</span>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group flex-1">
-            <label>Số dư dự kiến ₫</label>
-            <input type="number" id="mExpectedBalance" class="form-input" placeholder="5000000" value="5000000">
-          </div>
-          <div class="form-group flex-1">
-            <label>Số dư thực tế ₫</label>
-            <input type="number" id="mActualBalance" class="form-input" placeholder="5000000" value="5000000">
-          </div>
-        </div>
-
-        <div class="modal-actions">
+        <div class="modal-actions mt-3">
           <button type="button" class="btn btn-secondary" id="btnCancelMonthly">Hủy</button>
           <button type="submit" class="btn btn-primary" id="btnSaveMonthly">Lưu Dữ Liệu</button>
         </div>

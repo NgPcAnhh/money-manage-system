@@ -24,24 +24,43 @@ const FinanceCharts = {
       return;
     }
 
-    const labels = ['Học tập', 'Gửi bố mẹ', 'Nhu cầu thiết yếu', 'Tiền tiêu', 'Tiết kiệm', 'Đầu tư'];
-    const dataValues = [
-      Number(monthRecord.study || 0),
-      Number(monthRecord.parents || 0),
-      Number(monthRecord.essentialTotal || 0),
-      Math.max(0, Number(monthRecord.freeMoney || 0)),
-      Number(monthRecord.saving || 0),
-      Number(monthRecord.investment || 0)
-    ];
+    let labels = [];
+    let dataValues = [];
+    let backgroundColors = [];
+    const colorPalette = ['#a855f7', '#f97316', '#10b981', '#f59e0b', '#ec4899', '#6366f1', '#14b8a6', '#eab308'];
 
-    const backgroundColors = [
-      '#a855f7', // Học tập - tím
-      '#f97316', // Bố mẹ - cam
-      '#06b6d4', // Thiết yếu - cyan
-      '#3b82f6', // Tiền tiêu - blue
-      '#10b981', // Tiết kiệm - emerald
-      '#f59e0b'  // Đầu tư - amber
-    ];
+    if (monthRecord.fundsList && monthRecord.fundsList.length > 0) {
+      monthRecord.fundsList.forEach((f, idx) => {
+        labels.push(f.name);
+        dataValues.push(Number(f.amount || 0));
+        backgroundColors.push(colorPalette[idx % colorPalette.length]);
+      });
+      labels.push('Nhu cầu thiết yếu');
+      dataValues.push(Number(monthRecord.essentialTotal || 0));
+      backgroundColors.push('#06b6d4');
+
+      labels.push('Tiền tiêu');
+      dataValues.push(Math.max(0, Number(monthRecord.freeMoney || 0)));
+      backgroundColors.push('#3b82f6');
+    } else {
+      labels = ['Học tập', 'Gửi bố mẹ', 'Nhu cầu thiết yếu', 'Tiền tiêu', 'Tiết kiệm', 'Đầu tư'];
+      dataValues = [
+        Number(monthRecord.study || 0),
+        Number(monthRecord.parents || 0),
+        Number(monthRecord.essentialTotal || 0),
+        Math.max(0, Number(monthRecord.freeMoney || 0)),
+        Number(monthRecord.saving || 0),
+        Number(monthRecord.investment || 0)
+      ];
+      backgroundColors = [
+        '#a855f7', // Học tập - tím
+        '#f97316', // Bố mẹ - cam
+        '#06b6d4', // Thiết yếu - cyan
+        '#3b82f6', // Tiền tiêu - blue
+        '#10b981', // Tiết kiệm - emerald
+        '#f59e0b'  // Đầu tư - amber
+      ];
+    }
 
     this.pieChartInstance = new Chart(ctx, {
       type: 'doughnut',
