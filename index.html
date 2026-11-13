@@ -79,133 +79,114 @@
             </button>
           </div>
 
-          <!-- Responsive 16:9 & Mobile Dashboard Layout Container -->
-          <div class="dash-desktop-layout">
+          <!-- Simple & Responsive Dashboard Layout (Desktop 16:9: 2 Columns / Mobile: Stacked) -->
+          <div class="dash-simple-layout">
             
-            <!-- LEFT COLUMN: KPIs & Cashflow Waterfall & History Trends -->
-            <div class="dash-left-col">
+            <!-- LEFT COLUMN: PHỄU TIỀN RA (CASHFLOW FUNNEL) & BIỂU ĐỒ PHÂN BỔ (PIE CHART) -->
+            <div class="dash-simple-col">
               
-              <!-- 4 Core Cashflow KPI Cards -->
-              <div class="kpi-grid">
-                <div class="kpi-card primary-gradient">
-                  <div class="kpi-label">
-                    <span>Thực nhận (Thu nhập)</span>
-                    <i data-lucide="wallet"></i>
-                  </div>
-                  <div class="kpi-value" id="kpiNetSalary">0 ₫</div>
-                  <div class="kpi-sub" id="kpiGrossSalary">Lương: 0 ₫ | Thưởng: 0 ₫</div>
-                </div>
-
-                <div class="kpi-card danger-gradient">
-                  <div class="kpi-label">
-                    <span>Chi cố định & Quỹ</span>
-                    <i data-lucide="arrow-up-right"></i>
-                  </div>
-                  <div class="kpi-value" id="kpiFixedExpense">0 ₫</div>
-                  <div class="kpi-sub" id="kpiFixedExpenseRatio">Học, Bố mẹ, Thiết yếu</div>
-                </div>
-
-                <div class="kpi-card accent-gradient">
-                  <div class="kpi-label">
-                    <span>Tiền tiêu tự do</span>
-                    <i data-lucide="shopping-bag"></i>
-                  </div>
-                  <div class="kpi-value" id="kpiFreeMoney">0 ₫</div>
-                  <div class="kpi-sub" id="kpiFreeMoneyRatio">Sinh hoạt còn lại</div>
-                </div>
-
-                <div class="kpi-card success-gradient">
-                  <div class="kpi-label">
-                    <span>Tiết kiệm & Đầu tư</span>
-                    <i data-lucide="trending-up"></i>
-                  </div>
-                  <div class="kpi-value" id="kpiSaveInvest">0 ₫</div>
-                  <div class="kpi-sub" id="kpiSaveInvestRate">Tích lũy tài sản: 0%</div>
-                </div>
-              </div>
-
-              <!-- Visual Cashflow Pipeline Flowmap (Bản Đồ Dòng Tiền) -->
-              <div class="card-box mt-3 cashflow-flowmap-card">
+              <!-- Card: Phễu Dòng Tiền Ra -->
+              <div class="card-box funnel-card">
                 <div class="card-box-header">
                   <div>
-                    <h3>Bản Đồ Dòng Tiền Tháng</h3>
-                    <p class="text-caption">Đường đi của 100% thu nhập trong tháng</p>
+                    <h3>Phễu Dòng Tiền Ra</h3>
+                    <p class="text-caption">Đường rót tiền từ thu nhập tới các khoản chi tiêu</p>
                   </div>
-                  <span class="badge badge-primary" id="flowmapMonthLabel">T9/2026</span>
+                  <span class="badge badge-primary" id="funnelMonthLabel">T9/2026</span>
                 </div>
 
-                <!-- Multi-segment visual bar -->
-                <div class="cashflow-multi-bar" id="cashflowMultiBar">
-                  <div class="bar-seg seg-funds" id="segFunds" style="width: 42%;" title="Nghĩa vụ & Quỹ"></div>
-                  <div class="bar-seg seg-essential" id="segEssential" style="width: 6%;" title="Thiết yếu"></div>
-                  <div class="bar-seg seg-free" id="segFree" style="width: 39%;" title="Tiền tiêu tự do"></div>
-                  <div class="bar-seg seg-saving" id="segSaving" style="width: 13%;" title="Tiết kiệm & Đầu tư"></div>
-                </div>
-
-                <!-- Pipeline Breakdown Cards -->
-                <div class="flow-steps-grid">
-                  <div class="flow-step-item">
-                    <div class="flow-step-header">
-                      <span class="flow-dot dot-funds"></span>
-                      <span class="flow-name">Học & Bố mẹ</span>
+                <!-- Visual Funnel Stages -->
+                <div class="cashflow-funnel">
+                  
+                  <!-- Tầng 1: Thu Nhập Thực Nhận (Đầu vào) -->
+                  <div class="funnel-tier tier-income">
+                    <div class="funnel-tier-body">
+                      <div class="tier-icon-wrap"><i data-lucide="wallet"></i></div>
+                      <div class="tier-info">
+                        <span class="tier-title">1. Thu Nhập Thực Nhận</span>
+                        <span class="tier-desc" id="funnelIncomeSub">Lương: 13.35 tr | Thưởng: 2 tr</span>
+                      </div>
+                      <div class="tier-values">
+                        <span class="tier-amount" id="funnelIncomeVal">15.351.500 ₫</span>
+                        <span class="tier-pct">100%</span>
+                      </div>
                     </div>
-                    <span class="flow-val" id="flowValFunds">0 ₫</span>
-                    <span class="flow-pct" id="flowPctFunds">0%</span>
                   </div>
 
-                  <div class="flow-step-item">
-                    <div class="flow-step-header">
-                      <span class="flow-dot dot-essential"></span>
-                      <span class="flow-name">Thiết yếu</span>
-                    </div>
-                    <span class="flow-val" id="flowValEssential">0 ₫</span>
-                    <span class="flow-pct" id="flowPctEssential">0%</span>
+                  <!-- Connector 1 -->
+                  <div class="funnel-connector">
+                    <div class="connector-line"></div>
+                    <div class="connector-badge"><i data-lucide="arrow-down"></i> Chi cố định & Quỹ</div>
+                    <div class="connector-line"></div>
                   </div>
 
-                  <div class="flow-step-item">
-                    <div class="flow-step-header">
-                      <span class="flow-dot dot-free"></span>
-                      <span class="flow-name">Tiêu tự do</span>
+                  <!-- Tầng 2: Chi Cố Định & Quỹ (Khấu trừ) -->
+                  <div class="funnel-tier tier-fixed">
+                    <div class="funnel-tier-body">
+                      <div class="tier-icon-wrap"><i data-lucide="shield-check"></i></div>
+                      <div class="tier-info">
+                        <span class="tier-title">2. Chi Cố Định & Quỹ</span>
+                        <span class="tier-desc" id="funnelFixedSub">Học, Bố mẹ, Thiết yếu</span>
+                      </div>
+                      <div class="tier-values">
+                        <span class="tier-amount" id="funnelFixedVal">7.380.000 ₫</span>
+                        <span class="tier-pct" id="funnelFixedPct">48.1%</span>
+                      </div>
                     </div>
-                    <span class="flow-val" id="flowValFree">0 ₫</span>
-                    <span class="flow-pct" id="flowPctFree">0%</span>
                   </div>
 
-                  <div class="flow-step-item">
-                    <div class="flow-step-header">
-                      <span class="flow-dot dot-saving"></span>
-                      <span class="flow-name">Tích lũy</span>
-                    </div>
-                    <span class="flow-val" id="flowValSaving">0 ₫</span>
-                    <span class="flow-pct" id="flowPctSaving">0%</span>
+                  <!-- Connector 2 -->
+                  <div class="funnel-connector">
+                    <div class="connector-line"></div>
+                    <div class="connector-badge"><i data-lucide="arrow-down"></i> Tích lũy tài sản</div>
+                    <div class="connector-line"></div>
                   </div>
+
+                  <!-- Tầng 3: Tiết Kiệm & Đầu Tư -->
+                  <div class="funnel-tier tier-savings">
+                    <div class="funnel-tier-body">
+                      <div class="tier-icon-wrap"><i data-lucide="trending-up"></i></div>
+                      <div class="tier-info">
+                        <span class="tier-title">3. Tiết Kiệm & Đầu Tư</span>
+                        <span class="tier-desc" id="funnelSavingsSub">Tích lũy tài sản</span>
+                      </div>
+                      <div class="tier-values">
+                        <span class="tier-amount" id="funnelSavingsVal">2.000.000 ₫</span>
+                        <span class="tier-pct" id="funnelSavingsPct">13.0%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Connector 3 -->
+                  <div class="funnel-connector">
+                    <div class="connector-line"></div>
+                    <div class="connector-badge"><i data-lucide="arrow-down"></i> Dòng tiền còn lại</div>
+                    <div class="connector-line"></div>
+                  </div>
+
+                  <!-- Tầng 4: Tiền Tiêu Tự Do (Đáy Phễu) -->
+                  <div class="funnel-tier tier-free">
+                    <div class="funnel-tier-body">
+                      <div class="tier-icon-wrap"><i data-lucide="sparkles"></i></div>
+                      <div class="tier-info">
+                        <span class="tier-title">4. Tiền Tiêu Tự Do</span>
+                        <span class="tier-desc" id="funnelFreeSub">Sinh hoạt khả dụng</span>
+                      </div>
+                      <div class="tier-values">
+                        <span class="tier-amount highlight" id="funnelFreeVal">5.971.500 ₫</span>
+                        <span class="tier-pct" id="funnelFreePct">38.9%</span>
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
               </div>
 
-              <!-- Lịch sử dòng tiền & Tích lũy -->
+              <!-- Card: Biểu Đồ Phân Bổ Chi Phí (Pie Chart) -->
               <div class="card-box mt-3">
                 <div class="card-box-header">
-                  <div>
-                    <h3>Lịch Sử Thu Chi & Tích Lũy</h3>
-                    <p class="text-caption">So sánh dòng tiền qua các kì</p>
-                  </div>
-                  <i data-lucide="line-chart" class="text-muted"></i>
-                </div>
-                <div class="chart-container line-container">
-                  <canvas id="historyLineChart"></canvas>
-                </div>
-              </div>
-
-            </div>
-
-            <!-- RIGHT COLUMN: Visual Donut Chart, Essentials & Health Metric -->
-            <div class="dash-right-col">
-              
-              <!-- Card: Biểu đồ phân bổ chi tiêu -->
-              <div class="card-box">
-                <div class="card-box-header">
                   <div class="header-with-badge">
-                    <h3>Cơ Cấu Phân Bổ Ngân Sách</h3>
+                    <h3>Biểu Đồ Phân Bổ Chi Phí</h3>
                     <span class="badge badge-primary" id="pieMonthLabel">T9/2026</span>
                   </div>
                   <i data-lucide="pie-chart" class="text-muted"></i>
@@ -216,40 +197,102 @@
                 <div class="chart-legend-custom" id="pieChartLegend"></div>
               </div>
 
-              <!-- Card: Sức khỏe tài chính cá nhân tháng -->
-              <div class="card-box mt-3 health-card">
-                <div class="card-box-header">
-                  <h3>Sức Khỏe Tài Chính Tháng</h3>
-                  <span class="badge badge-success" id="healthScoreBadge">Lành mạnh</span>
-                </div>
-                <div class="health-metrics-list">
-                  <div class="health-metric-row">
-                    <span>Tỷ lệ tích lũy tài sản:</span>
-                    <strong id="healthSavingsRate">13.0% (Mục tiêu 10-20%)</strong>
-                  </div>
-                  <div class="health-metric-row">
-                    <span>Chi phí thiết yếu / Thu nhập:</span>
-                    <strong id="healthEssentialRatio">5.7% (Rất tốt)</strong>
-                  </div>
-                  <div class="health-metric-row">
-                    <span>Số dư dự phòng thực tế:</span>
-                    <strong id="healthActualBalance">5.000.000 ₫</strong>
-                  </div>
-                </div>
-              </div>
+            </div>
 
-              <!-- Card: Danh sách chi phí thiết yếu -->
-              <div class="card-box mt-3">
+            <!-- RIGHT COLUMN: BẢNG SỐ LIỆU CHI TIẾT -->
+            <div class="dash-simple-col">
+              
+              <!-- Card: Bảng Số Liệu Chi Tiết -->
+              <div class="card-box detail-table-card">
                 <div class="card-box-header">
                   <div>
-                    <h3>Chi Tiết Thiết Yếu Tháng</h3>
-                    <p class="text-caption" id="essentialTotalText">Tổng: 880,000 ₫</p>
+                    <h3>Bảng Số Liệu Chi Tiết</h3>
+                    <p class="text-caption">Bóc tách toàn bộ số tiền cá nhân trong tháng</p>
                   </div>
-                  <button class="btn-xs btn-outline" id="btnEditCurrentEssentials">
-                    <i data-lucide="edit-3"></i> Tùy chỉnh
-                  </button>
+                  <span class="badge badge-success" id="tableStatusBadge">Cân bằng 100%</span>
                 </div>
-                <div class="essentials-preview-list" id="essentialsPreviewList"></div>
+
+                <div class="finance-detail-table">
+                  
+                  <!-- Phần 1: Thực Nhận -->
+                  <div class="detail-section">
+                    <div class="detail-section-header">
+                      <div class="sec-left">
+                        <span class="sec-indicator ind-income"></span>
+                        <span class="sec-name">1. THỰC NHẬN (THU NHẬP)</span>
+                      </div>
+                      <strong class="sec-total primary" id="tblNetSalary">15.351.500 ₫</strong>
+                    </div>
+                    <div class="detail-subrows">
+                      <div class="detail-subrow">
+                        <span>• Lương công ty</span>
+                        <span class="subrow-val" id="tblGrossSalary">13.351.500 ₫</span>
+                      </div>
+                      <div class="detail-subrow">
+                        <span>• Thưởng & Thu nhập thêm</span>
+                        <span class="subrow-val" id="tblBonus">2.000.000 ₫</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Phần 2: Chi Tiêu Cố Định & Quỹ -->
+                  <div class="detail-section">
+                    <div class="detail-section-header">
+                      <div class="sec-left">
+                        <span class="sec-indicator ind-fixed"></span>
+                        <span class="sec-name">2. TỔNG CHI TIÊU CỐ ĐỊNH</span>
+                      </div>
+                      <strong class="sec-total danger" id="tblFixedTotal">7.380.000 ₫</strong>
+                    </div>
+                    <div class="detail-subrows" id="tblFixedItemsList">
+                      <!-- Rendered by JS -->
+                    </div>
+                  </div>
+
+                  <!-- Phần 3: Tiết Kiệm & Tích Lũy -->
+                  <div class="detail-section">
+                    <div class="detail-section-header">
+                      <div class="sec-left">
+                        <span class="sec-indicator ind-savings"></span>
+                        <span class="sec-name">3. TỔNG TIẾT KIỆM & ĐẦU TƯ</span>
+                      </div>
+                      <strong class="sec-total success" id="tblSavingsTotal">2.000.000 ₫</strong>
+                    </div>
+                    <div class="detail-subrows">
+                      <div class="detail-subrow">
+                        <span>• Tiền tiết kiệm</span>
+                        <span class="subrow-val" id="tblSaving">2.000.000 ₫</span>
+                      </div>
+                      <div class="detail-subrow">
+                        <span>• Tiền đầu tư</span>
+                        <span class="subrow-val" id="tblInvestment">0 ₫</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Phần 4: Tiền Tiêu Tự Do -->
+                  <div class="detail-section highlight-box">
+                    <div class="detail-section-header">
+                      <div class="sec-left">
+                        <span class="sec-indicator ind-free"></span>
+                        <span class="sec-name">4. TIỀN TIÊU TỰ DO CÒN LẠI</span>
+                      </div>
+                      <strong class="sec-total accent" id="tblFreeMoney">5.971.500 ₫</strong>
+                    </div>
+                    <div class="detail-subrows">
+                      <div class="detail-subrow">
+                        <span>• Tỷ lệ tự do chi tiêu</span>
+                        <strong class="subrow-val" id="tblFreePct">38.9%</strong>
+                      </div>
+                      <div class="detail-subrow">
+                        <span>• Số dư tài khoản thực tế</span>
+                        <strong class="subrow-val" id="tblActualBalance">5.000.000 ₫</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
               </div>
 
             </div>

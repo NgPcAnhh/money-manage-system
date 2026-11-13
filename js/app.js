@@ -51,41 +51,37 @@ class AppController {
     this.currentFilterText = document.getElementById('currentFilterText');
     this.btnClearCustomFilter = document.getElementById('btnClearCustomFilter');
 
-    // KPI Elements (Dashboard)
-    this.kpiNetSalary = document.getElementById('kpiNetSalary');
-    this.kpiGrossSalary = document.getElementById('kpiGrossSalary');
-    this.kpiFixedExpense = document.getElementById('kpiFixedExpense');
-    this.kpiFixedExpenseRatio = document.getElementById('kpiFixedExpenseRatio');
-    this.kpiSaveInvest = document.getElementById('kpiSaveInvest');
-    this.kpiSaveInvestRate = document.getElementById('kpiSaveInvestRate');
-    this.kpiFreeMoney = document.getElementById('kpiFreeMoney');
-    this.kpiFreeMoneyRatio = document.getElementById('kpiFreeMoneyRatio');
+    // Funnel Elements (Dashboard)
+    this.funnelMonthLabel = document.getElementById('funnelMonthLabel');
+    this.funnelIncomeVal = document.getElementById('funnelIncomeVal');
+    this.funnelIncomeSub = document.getElementById('funnelIncomeSub');
+    this.funnelFixedVal = document.getElementById('funnelFixedVal');
+    this.funnelFixedPct = document.getElementById('funnelFixedPct');
+    this.funnelFixedSub = document.getElementById('funnelFixedSub');
+    this.funnelSavingsVal = document.getElementById('funnelSavingsVal');
+    this.funnelSavingsPct = document.getElementById('funnelSavingsPct');
+    this.funnelSavingsSub = document.getElementById('funnelSavingsSub');
+    this.funnelFreeVal = document.getElementById('funnelFreeVal');
+    this.funnelFreePct = document.getElementById('funnelFreePct');
+    this.funnelFreeSub = document.getElementById('funnelFreeSub');
 
-    // Cashflow Flowmap Elements
-    this.flowmapMonthLabel = document.getElementById('flowmapMonthLabel');
-    this.segFunds = document.getElementById('segFunds');
-    this.segEssential = document.getElementById('segEssential');
-    this.segFree = document.getElementById('segFree');
-    this.segSaving = document.getElementById('segSaving');
-    this.flowValFunds = document.getElementById('flowValFunds');
-    this.flowPctFunds = document.getElementById('flowPctFunds');
-    this.flowValEssential = document.getElementById('flowValEssential');
-    this.flowPctEssential = document.getElementById('flowPctEssential');
-    this.flowValFree = document.getElementById('flowValFree');
-    this.flowPctFree = document.getElementById('flowPctFree');
-    this.flowValSaving = document.getElementById('flowValSaving');
-    this.flowPctSaving = document.getElementById('flowPctSaving');
+    // Detail Table Elements (Dashboard)
+    this.tableStatusBadge = document.getElementById('tableStatusBadge');
+    this.tblNetSalary = document.getElementById('tblNetSalary');
+    this.tblGrossSalary = document.getElementById('tblGrossSalary');
+    this.tblBonus = document.getElementById('tblBonus');
+    this.tblFixedTotal = document.getElementById('tblFixedTotal');
+    this.tblFixedItemsList = document.getElementById('tblFixedItemsList');
+    this.tblSavingsTotal = document.getElementById('tblSavingsTotal');
+    this.tblSaving = document.getElementById('tblSaving');
+    this.tblInvestment = document.getElementById('tblInvestment');
+    this.tblFreeMoney = document.getElementById('tblFreeMoney');
+    this.tblFreePct = document.getElementById('tblFreePct');
+    this.tblActualBalance = document.getElementById('tblActualBalance');
 
-    // Financial Health Card Elements
-    this.healthScoreBadge = document.getElementById('healthScoreBadge');
-    this.healthSavingsRate = document.getElementById('healthSavingsRate');
-    this.healthEssentialRatio = document.getElementById('healthEssentialRatio');
-    this.healthActualBalance = document.getElementById('healthActualBalance');
-
+    // Pie Chart
     this.pieMonthLabel = document.getElementById('pieMonthLabel');
-    this.essentialTotalText = document.getElementById('essentialTotalText');
-    this.essentialsPreviewList = document.getElementById('essentialsPreviewList');
-    this.btnEditCurrentEssentials = document.getElementById('btnEditCurrentEssentials');
+    this.pieChartLegend = document.getElementById('pieChartLegend');
 
     // Monthly View Elements
     this.monthlyRecordsContainer = document.getElementById('monthlyRecordsContainer');
@@ -643,15 +639,15 @@ class AppController {
     }
   }
 
-  // ================= VIEW: DASHBOARD =================
+  // ================= VIEW: DASHBOARD (ĐƠN GIẢN: PHỄU TIỀN RA + BẢNG SỐ LIỆU + PIE CHART) =================
   renderDashboard() {
     const months = storage.getMonths();
     if (months.length === 0) {
-      if (this.kpiNetSalary) this.kpiNetSalary.textContent = '0 ₫';
-      if (this.kpiGrossSalary) this.kpiGrossSalary.textContent = 'Lương: 0 ₫ | Thưởng: 0 ₫';
-      if (this.kpiFixedExpense) this.kpiFixedExpense.textContent = '0 ₫';
-      if (this.kpiSaveInvest) this.kpiSaveInvest.textContent = '0 ₫';
-      if (this.kpiFreeMoney) this.kpiFreeMoney.textContent = '0 ₫';
+      if (this.funnelIncomeVal) this.funnelIncomeVal.textContent = '0 ₫';
+      if (this.funnelFixedVal) this.funnelFixedVal.textContent = '0 ₫';
+      if (this.funnelSavingsVal) this.funnelSavingsVal.textContent = '0 ₫';
+      if (this.funnelFreeVal) this.funnelFreeVal.textContent = '0 ₫';
+      if (this.tblNetSalary) this.tblNetSalary.textContent = '0 ₫';
       return;
     }
 
@@ -660,10 +656,10 @@ class AppController {
 
     if (this.dashboardMode === 'all') {
       isAggregated = true;
-      // Aggregate across ALL months
       let totalSalary = 0, totalTax = 0, totalBonus = 0, totalNet = 0;
       let totalStudy = 0, totalParents = 0, totalSaving = 0, totalInvestment = 0;
       let totalEssential = 0, totalFree = 0, totalFunds = 0;
+      const combinedFunds = [];
       const combinedEssentials = [];
 
       months.forEach(m => {
@@ -672,15 +668,22 @@ class AppController {
         totalBonus += FinanceCalc.toNumber(m.bonus);
         totalNet += FinanceCalc.calcNetSalary(m.salary, m.tax, m.bonus);
 
-        let mFunds = 0;
         if (m.fundsList && m.fundsList.length > 0) {
-          mFunds = m.fundsList.reduce((acc, f) => acc + FinanceCalc.toNumber(f.amount), 0);
+          m.fundsList.forEach(f => {
+            const exist = combinedFunds.find(cf => cf.name.toLowerCase() === f.name.toLowerCase());
+            if (exist) {
+              exist.amount += FinanceCalc.toNumber(f.amount);
+            } else {
+              combinedFunds.push({ name: f.name, amount: FinanceCalc.toNumber(f.amount) });
+            }
+            totalFunds += FinanceCalc.toNumber(f.amount);
+          });
         } else {
-          mFunds = FinanceCalc.toNumber(m.study) + FinanceCalc.toNumber(m.parents);
+          totalStudy += FinanceCalc.toNumber(m.study);
+          totalParents += FinanceCalc.toNumber(m.parents);
+          totalFunds += FinanceCalc.toNumber(m.study) + FinanceCalc.toNumber(m.parents);
         }
-        totalFunds += mFunds;
-        totalStudy += FinanceCalc.toNumber(m.study);
-        totalParents += FinanceCalc.toNumber(m.parents);
+
         totalSaving += FinanceCalc.toNumber(m.saving);
         totalInvestment += FinanceCalc.toNumber(m.investment);
         totalEssential += FinanceCalc.toNumber(m.essentialTotal);
@@ -696,6 +699,11 @@ class AppController {
         });
       });
 
+      if (combinedFunds.length === 0) {
+        if (totalStudy > 0) combinedFunds.push({ name: 'Học tập', amount: totalStudy });
+        if (totalParents > 0) combinedFunds.push({ name: 'Gửi bố mẹ', amount: totalParents });
+      }
+
       displayRecord = {
         month: 'Tất cả',
         year: `${months.length} kì`,
@@ -704,6 +712,7 @@ class AppController {
         netSalary: totalNet,
         study: totalStudy,
         parents: totalParents,
+        fundsList: combinedFunds,
         calculatedFunds: totalFunds,
         saving: totalSaving,
         investment: totalInvestment,
@@ -715,122 +724,107 @@ class AppController {
     } else if (this.dashboardMode === 'custom' && this.customSelectedMonthId) {
       displayRecord = storage.getMonthById(this.customSelectedMonthId) || months[0];
     } else {
-      // Default: Latest month
       displayRecord = months[0];
     }
 
-    // 1. Calculations & Payday Countdown
+    // 1. Countdown to Day 28
     this.updatePaydayCountdown(displayRecord);
 
     const netSalary = FinanceCalc.toNumber(displayRecord.netSalary);
+    const salary = FinanceCalc.toNumber(displayRecord.salary);
+    const bonus = FinanceCalc.toNumber(displayRecord.bonus);
 
-    // Funds total (Học tập & Trách nhiệm gia đình)
-    let fundsTotal = 0;
-    if (displayRecord.calculatedFunds !== undefined) {
-      fundsTotal = displayRecord.calculatedFunds;
-    } else if (displayRecord.fundsList && displayRecord.fundsList.length > 0) {
-      fundsTotal = displayRecord.fundsList.reduce((acc, f) => acc + FinanceCalc.toNumber(f.amount), 0);
+    // Dynamic funds
+    let fundsList = [];
+    if (displayRecord.fundsList && displayRecord.fundsList.length > 0) {
+      fundsList = displayRecord.fundsList;
     } else {
-      fundsTotal = FinanceCalc.toNumber(displayRecord.study) + FinanceCalc.toNumber(displayRecord.parents);
+      if (displayRecord.study) fundsList.push({ name: 'Học tập', amount: FinanceCalc.toNumber(displayRecord.study) });
+      if (displayRecord.parents) fundsList.push({ name: 'Gửi bố mẹ', amount: FinanceCalc.toNumber(displayRecord.parents) });
     }
-
+    const fundsTotal = fundsList.reduce((sum, f) => sum + FinanceCalc.toNumber(f.amount), 0);
     const essentialTotal = FinanceCalc.toNumber(displayRecord.essentialTotal);
     const fixedTotal = fundsTotal + essentialTotal;
-    const savingTotal = FinanceCalc.toNumber(displayRecord.saving) + FinanceCalc.toNumber(displayRecord.investment);
+
+    const saving = FinanceCalc.toNumber(displayRecord.saving);
+    const investment = FinanceCalc.toNumber(displayRecord.investment);
+    const savingsTotal = saving + investment;
     const freeMoney = FinanceCalc.toNumber(displayRecord.freeMoney);
 
-    const pctFunds = netSalary > 0 ? ((fundsTotal / netSalary) * 100).toFixed(1) : '0';
-    const pctEssential = netSalary > 0 ? ((essentialTotal / netSalary) * 100).toFixed(1) : '0';
     const pctFixed = netSalary > 0 ? ((fixedTotal / netSalary) * 100).toFixed(1) : '0';
-    const pctSaving = netSalary > 0 ? ((savingTotal / netSalary) * 100).toFixed(1) : '0';
+    const pctSavings = netSalary > 0 ? ((savingsTotal / netSalary) * 100).toFixed(1) : '0';
     const pctFree = netSalary > 0 ? ((freeMoney / netSalary) * 100).toFixed(1) : '0';
 
-    // 2. Set Safe KPI Big Numbers (Compact, no overflow)
-    if (this.kpiNetSalary) this.kpiNetSalary.textContent = FinanceCalc.formatVND(netSalary);
-    if (this.kpiGrossSalary) {
-      this.kpiGrossSalary.textContent = `Lương: ${FinanceCalc.formatVNDCompact(displayRecord.salary)} | Thưởng: ${FinanceCalc.formatVNDCompact(displayRecord.bonus)}`;
+    const monthLabel = isAggregated ? `Tổng ${months.length} kì` : `T${displayRecord.month}/${displayRecord.year}`;
+
+    // 2. Render Funnel (Phễu Dòng Tiền Ra)
+    if (this.funnelMonthLabel) this.funnelMonthLabel.textContent = monthLabel;
+    if (this.funnelIncomeVal) this.funnelIncomeVal.textContent = FinanceCalc.formatVND(netSalary);
+    if (this.funnelIncomeSub) {
+      this.funnelIncomeSub.textContent = `Lương: ${FinanceCalc.formatVNDCompact(salary)} | Thưởng: ${FinanceCalc.formatVNDCompact(bonus)}`;
     }
 
-    if (this.kpiFixedExpense) this.kpiFixedExpense.textContent = FinanceCalc.formatVND(fixedTotal);
-    if (this.kpiFixedExpenseRatio) this.kpiFixedExpenseRatio.textContent = `Học, Bố mẹ, Thiết yếu (${pctFixed}%)`;
+    if (this.funnelFixedVal) this.funnelFixedVal.textContent = `- ${FinanceCalc.formatVND(fixedTotal)}`;
+    if (this.funnelFixedPct) this.funnelFixedPct.textContent = `${pctFixed}%`;
+    if (this.funnelFixedSub) this.funnelFixedSub.textContent = `Học tập, Bố mẹ & Thiết yếu`;
 
-    if (this.kpiFreeMoney) this.kpiFreeMoney.textContent = FinanceCalc.formatVND(freeMoney);
-    if (this.kpiFreeMoneyRatio) this.kpiFreeMoneyRatio.textContent = `Sinh hoạt còn lại (${pctFree}%)`;
+    if (this.funnelSavingsVal) this.funnelSavingsVal.textContent = `- ${FinanceCalc.formatVND(savingsTotal)}`;
+    if (this.funnelSavingsPct) this.funnelSavingsPct.textContent = `${pctSavings}%`;
+    if (this.funnelSavingsSub) this.funnelSavingsSub.textContent = `Tiết kiệm & Đầu tư`;
 
-    if (this.kpiSaveInvest) this.kpiSaveInvest.textContent = FinanceCalc.formatVND(savingTotal);
-    if (this.kpiSaveInvestRate) this.kpiSaveInvestRate.textContent = `Tích lũy tài sản: ${pctSaving}%`;
+    if (this.funnelFreeVal) this.funnelFreeVal.textContent = FinanceCalc.formatVND(freeMoney);
+    if (this.funnelFreePct) this.funnelFreePct.textContent = `${pctFree}%`;
+    if (this.funnelFreeSub) this.funnelFreeSub.textContent = `Sinh hoạt cá nhân khả dụng`;
 
-    // 3. Flowmap Multi-Bar & Steps
-    const monthStr = isAggregated ? `Tổng ${months.length} kì` : `T${displayRecord.month}/${displayRecord.year}`;
-    if (this.flowmapMonthLabel) this.flowmapMonthLabel.textContent = monthStr;
+    // 3. Render Detail Table (Bảng Số Liệu Chi Tiết)
+    if (this.tblNetSalary) this.tblNetSalary.textContent = FinanceCalc.formatVND(netSalary);
+    if (this.tblGrossSalary) this.tblGrossSalary.textContent = FinanceCalc.formatVND(salary);
+    if (this.tblBonus) this.tblBonus.textContent = FinanceCalc.formatVND(bonus);
 
-    if (this.segFunds) this.segFunds.style.width = `${Math.max(2, parseFloat(pctFunds))}%`;
-    if (this.segEssential) this.segEssential.style.width = `${Math.max(2, parseFloat(pctEssential))}%`;
-    if (this.segFree) this.segFree.style.width = `${Math.max(2, parseFloat(pctFree))}%`;
-    if (this.segSaving) this.segSaving.style.width = `${Math.max(2, parseFloat(pctSaving))}%`;
-
-    if (this.flowValFunds) this.flowValFunds.textContent = FinanceCalc.formatVND(fundsTotal);
-    if (this.flowPctFunds) this.flowPctFunds.textContent = `${pctFunds}%`;
-
-    if (this.flowValEssential) this.flowValEssential.textContent = FinanceCalc.formatVND(essentialTotal);
-    if (this.flowPctEssential) this.flowPctEssential.textContent = `${pctEssential}%`;
-
-    if (this.flowValFree) this.flowValFree.textContent = FinanceCalc.formatVND(freeMoney);
-    if (this.flowPctFree) this.flowPctFree.textContent = `${pctFree}%`;
-
-    if (this.flowValSaving) this.flowValSaving.textContent = FinanceCalc.formatVND(savingTotal);
-    if (this.flowPctSaving) this.flowPctSaving.textContent = `${pctSaving}%`;
-
-    // 4. Financial Health Card
-    const numSavingRate = parseFloat(pctSaving);
-    if (this.healthScoreBadge) {
-      if (numSavingRate >= 15) {
-        this.healthScoreBadge.textContent = 'Xuất sắc';
-        this.healthScoreBadge.className = 'badge badge-success';
-      } else if (numSavingRate >= 10) {
-        this.healthScoreBadge.textContent = 'Lành mạnh';
-        this.healthScoreBadge.className = 'badge badge-success';
-      } else if (numSavingRate >= 5) {
-        this.healthScoreBadge.textContent = 'Bình thường';
-        this.healthScoreBadge.className = 'badge badge-primary';
-      } else {
-        this.healthScoreBadge.textContent = 'Cần tối ưu';
-        this.healthScoreBadge.className = 'badge badge-danger';
-      }
-    }
-    if (this.healthSavingsRate) {
-      this.healthSavingsRate.textContent = `${pctSaving}% (Mục tiêu 10 - 20%)`;
-    }
-    if (this.healthEssentialRatio) {
-      this.healthEssentialRatio.textContent = `${pctEssential}% (Chuẩn an toàn < 25%)`;
-    }
-    if (this.healthActualBalance) {
-      this.healthActualBalance.textContent = FinanceCalc.formatVND(displayRecord.actualBalance || 0);
-    }
-
-    if (this.pieMonthLabel) this.pieMonthLabel.textContent = monthStr;
-
-    // 5. Render Essentials Breakdown
-    if (this.essentialTotalText) {
-      this.essentialTotalText.textContent = `Tổng: ${FinanceCalc.formatVND(displayRecord.essentialTotal || 0)}`;
-    }
-    const items = displayRecord.essentialsList || [];
-    if (this.essentialsPreviewList) {
-      if (items.length === 0) {
-        this.essentialsPreviewList.innerHTML = `<div class="text-caption text-center py-2">Chưa có mục thiết yếu chi tiết</div>`;
-      } else {
-        this.essentialsPreviewList.innerHTML = items.slice(0, 6).map(item => `
-          <div class="essential-preview-row">
-            <span class="essential-preview-name">${this.escapeHTML(item.name)}</span>
-            <span class="essential-preview-amount">${FinanceCalc.formatVND(item.amount)}</span>
+    if (this.tblFixedTotal) this.tblFixedTotal.textContent = FinanceCalc.formatVND(fixedTotal);
+    if (this.tblFixedItemsList) {
+      let fixedHtml = '';
+      fundsList.forEach(f => {
+        fixedHtml += `
+          <div class="detail-subrow">
+            <span>• ${this.escapeHTML(f.name)}</span>
+            <span class="subrow-val">${FinanceCalc.formatVND(f.amount)}</span>
           </div>
-        `).join('');
+        `;
+      });
+      // Essentials total
+      fixedHtml += `
+        <div class="detail-subrow">
+          <span>• Nhu cầu thiết yếu (${(displayRecord.essentialsList || []).length} mục)</span>
+          <span class="subrow-val">${FinanceCalc.formatVND(essentialTotal)}</span>
+        </div>
+      `;
+      // Detailed essentials breakdown
+      const essentials = displayRecord.essentialsList || [];
+      if (essentials.length > 0) {
+        essentials.forEach(item => {
+          fixedHtml += `
+            <div class="detail-subrow" style="opacity: 0.72; font-size: 11px;">
+              <span style="padding-left: 24px;">↳ ${this.escapeHTML(item.name)}</span>
+              <span class="subrow-val">${FinanceCalc.formatVND(item.amount)}</span>
+            </div>
+          `;
+        });
       }
+      this.tblFixedItemsList.innerHTML = fixedHtml;
     }
 
-    // 6. Render Charts
+    if (this.tblSavingsTotal) this.tblSavingsTotal.textContent = FinanceCalc.formatVND(savingsTotal);
+    if (this.tblSaving) this.tblSaving.textContent = FinanceCalc.formatVND(saving);
+    if (this.tblInvestment) this.tblInvestment.textContent = FinanceCalc.formatVND(investment);
+
+    if (this.tblFreeMoney) this.tblFreeMoney.textContent = FinanceCalc.formatVND(freeMoney);
+    if (this.tblFreePct) this.tblFreePct.textContent = `${pctFree}% trên thu nhập`;
+    if (this.tblActualBalance) this.tblActualBalance.textContent = FinanceCalc.formatVND(displayRecord.actualBalance || 0);
+
+    // 4. Render Pie Chart (Phân Bổ Chi Phí)
+    if (this.pieMonthLabel) this.pieMonthLabel.textContent = monthLabel;
     FinanceCharts.renderExpensePieChart('expensePieChart', displayRecord);
-    FinanceCharts.renderHistoryLineChart('historyLineChart', months);
   }
 
   renderFilterMonthOptions() {
