@@ -305,64 +305,138 @@ class AppController {
     });
   }
 
-  // ================= SWIPE GESTURE ENGINE =================
+  // ================= SWIPE GESTURE ENGINE (FLAWLESS TOUCH & MOUSE) =================
   initSwipeGesture() {
+    const viewport = this.swipeViewport;
+    const track = this.swipeTrack;
+    if (!viewport || !track) return;
+
     let startX = 0;
     let startY = 0;
-    let isHorizontal = false;
-    let isSwiping = false;
+    let currentX = 0;
+    let isDragging = false;
+    let isHorizontal = null; // null = undecided, true = horizontal swipe, false = vertical scroll
 
-    const handleStart = (e) => {
-      const touch = e.touches ? e.touches[0] : e;
-      startX = touch.clientX;
-      startY = touch.clientY;
-      isHorizontal = false;
-      isSwiping = true;
-    };
+    // Prevent default browser dragging on images/canvas
+    viewport.addEventListener('dragstart', (e) => e.preventDefault());
 
-    const handleMove = (e) => {
-      if (!isSwiping) return;
-      const touch = e.touches ? e.touches[0] : e;
-      const diffX = touch.clientX - startX;
-      const diffY = touch.clientY - startY;
-
-      // Determine gesture direction
-      if (!isHorizontal && (Math.abs(diffX) > 10 || Math.abs(diffY) > 10)) {
-        isHorizontal = Math.abs(diffX) > Math.abs(diffY);
+    const onStart = (clientX, clientY, target) => {
+      // Don't start drag if interacting with buttons, inputs, dropdowns
+      if (target && target.closest('button, input, select, textarea, .btn, .icon-btn, .pill, .chip, .toggle-pill, .filter-round-btn, .filter-option-item')) {
+        return false;
       }
+
+      isDragging = true;
+      isHorizontal = null;
+      startX = clientX;
+      startY = clientY;
+      currentX = clientX;
+      track.style.transition = 'none'; // Live follow without lag
+      return true;
     };
 
-    const handleEnd = (e) => {
-      if (!isSwiping) return;
-      isSwiping = false;
+    const onMove = (clientX, clientY, e) => {
+      if (!isDragging) return;
 
-      const touch = e.changedTouches ? e.changedTouches[0] : e;
-      const diffX = touch.clientX - startX;
+      const diffX = clientX - startX;
+      const diffY = clientY - startY;
 
-      if (isHorizontal && Math.abs(diffX) > 42) {
-        if (diffX < 0 && this.currentSlide < this.totalSlides - 1) {
-          // Swipe Left -> Next Slide
-          this.goToSlide(this.currentSlide + 1);
-        } else if (diffX > 0 && this.currentSlide > 0) {
-          // Swipe Right -> Prev Slide
-          this.goToSlide(this.currentSlide - 1);
+      // Determine swipe direction after small initial movement
+      if (isHorizontal === null) {
+        if (Math.abs(diffX) > 7 || Math.abs(diffY) > 7) {
+          isHorizontal = Math.abs(diffX) > Math.abs(diffY);
         }
       }
+
+      // If horizontal swipe: prevent vertical scroll and follow finger live!
+      if (isHorizontal === true) {
+        if (e && e.cancelable) {
+          e.preventDefault();
+        }
+        currentX = clientX;
+
+        // Calculate dynamic real-time percentage offset
+        const baseOffsetPercent = -this.currentSlide * 20; // 20% per slide (5 slides)
+        const viewportWidth = viewport.offsetWidth || 430;
+        const diffPercent = (diffX / viewportWidth) * 20;
+
+        // Add elastic resistance at start and end
+        let finalPercent = baseOffsetPercent + diffPercent;
+        if (this.currentSlide === 0 && diffX > 0) {
+          finalPercent = baseOffsetPercent + diffPercent * 0.3;
+        } else if (this.currentSlide === this.totalSlides - 1 && diffX < 0) {
+          finalPercent = baseOffsetPercent + diffPercent * 0.3;
+        }
+
+        track.style.transform = `translateX(${finalPercent}%)`;
+      }
     };
 
-    // Attach Touch Listeners
-    this.swipeViewport.addEventListener('touchstart', handleStart, { passive: true });
-    this.swipeViewport.addEventListener('touchmove', handleMove, { passive: true });
-    this.swipeViewport.addEventListener('touchend', handleEnd, { passive: true });
+    const onEnd = () => {
+      if (!isDragging) return;
+      isDragging = false;
+      track.style.transition = 'transform 0.28s cubic-bezier(0.16, 1, 0.3, 1)';
 
-    // Also Attach Mouse Drag for Desktop Emulation
-    this.swipeViewport.addEventListener('mousedown', (e) => {
-      // Ignore if clicking on button, input, or select
-      if (e.target.closest('button, input, select, textarea, label, a, .icon-btn')) return;
-      handleStart(e);
+      if (isHorizontal === true) {
+        const diffX = currentX - startX;
+        const threshold = 35; // Minimum drag distance to switch tab
+
+        if (diffX < -threshold && this.currentSlide < this.totalSlides - 1) {
+          // Vuốt từ phải qua trái (drag left) -> Chuyển sang tab KẾ TIẾP
+          this.goToSlide(this.currentSlide + 1);
+        } else if (diffX > threshold && this.currentSlide > 0) {
+          // Vuốt từ trái qua phải (drag right) -> Chuyển sang tab TRƯỚC ĐÓ
+          this.goToSlide(this.currentSlide - 1);
+        } else {
+          // Chưa đủ lực vuốt -> Snap trở lại tab hiện tại
+          this.goToSlide(this.currentSlide);
+        }
+      } else {
+        this.goToSlide(this.currentSlide);
+      }
+
+      isHorizontal = null;
+    };
+
+    // --- MOBILE TOUCH LISTENERS (iOS Safari / Android) ---
+    viewport.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        onStart(e.touches[0].clientX, e.touches[0].clientY, e.target);
+      }
+    }, { passive: true });
+
+    viewport.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 1) {
+        onMove(e.touches[0].clientX, e.touches[0].clientY, e);
+      }
+    }, { passive: false }); // CRITICAL: passive: false allows e.preventDefault() to lock horizontal swipe!
+
+    viewport.addEventListener('touchend', () => {
+      onEnd();
+    }, { passive: true });
+
+    viewport.addEventListener('touchcancel', () => {
+      onEnd();
+    }, { passive: true });
+
+    // --- DESKTOP MOUSE DRAG LISTENERS (Click & drag to test) ---
+    viewport.addEventListener('mousedown', (e) => {
+      if (onStart(e.clientX, e.clientY, e.target)) {
+        e.preventDefault();
+      }
     });
-    window.addEventListener('mousemove', handleMove);
-    window.addEventListener('mouseup', handleEnd);
+
+    window.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        onMove(e.clientX, e.clientY, e);
+      }
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (isDragging) {
+        onEnd();
+      }
+    });
   }
 
   goToSlide(slideIndex) {
