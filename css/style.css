@@ -86,21 +86,21 @@ html, body {
   user-select: none;
 }
 
-/* Real Responsive App Root (Không còn khung viền và tai thỏ giả) */
+/* Real Responsive App Root (Chuẩn 16:9 Desktop & Fullscreen Native Mobile) */
 .app-root {
   width: 100%;
   height: 100dvh;
-  max-width: 480px;
+  max-width: 1360px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   position: relative;
   background-color: var(--bg-app);
   overflow: hidden;
-  box-shadow: 0 0 50px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.45);
 }
 
-@media (max-width: 500px) {
+@media (max-width: 768px) {
   .app-root {
     max-width: 100%;
     height: 100dvh;
@@ -268,6 +268,12 @@ html, body {
 .view-slide {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+@media (min-width: 900px) {
+  .view-slide {
+    padding: 16px 28px 80px;
+  }
 }
 
 /* ================= DASHBOARD TOP QUICK TOGGLE & FILTER ================= */
@@ -442,6 +448,198 @@ html, body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* ================= RESPONSIVE DASHBOARD LAYOUT (16:9 & MOBILE) ================= */
+.dash-desktop-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.dash-left-col,
+.dash-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+@media (min-width: 900px) {
+  .dash-desktop-layout {
+    display: grid;
+    grid-template-columns: 1.28fr 0.92fr;
+    gap: 18px;
+    align-items: start;
+  }
+
+  .kpi-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  .kpi-card {
+    min-height: 106px;
+    padding: 14px 16px;
+  }
+
+  .kpi-value {
+    font-size: 19px;
+  }
+
+  .kpi-sub {
+    font-size: 11px;
+  }
+
+  .line-container {
+    height: 240px;
+  }
+
+  .pie-container {
+    height: 230px;
+  }
+}
+
+/* ================= CASHFLOW MULTI-BAR FLOWMAP ================= */
+.cashflow-flowmap-card {
+  padding: 16px 18px;
+}
+
+.cashflow-multi-bar {
+  display: flex;
+  height: 16px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+  margin: 12px 0 14px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.bar-seg {
+  height: 100%;
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.bar-seg:hover {
+  filter: brightness(1.15);
+}
+
+.seg-funds {
+  background: linear-gradient(90deg, #ec4899, #8b5cf6);
+}
+
+.seg-essential {
+  background: linear-gradient(90deg, #06b6d4, #0284c7);
+}
+
+.seg-free {
+  background: linear-gradient(90deg, #3b82f6, #6366f1);
+}
+
+.seg-saving {
+  background: linear-gradient(90deg, #10b981, #059669);
+}
+
+.flow-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+@media (min-width: 600px) {
+  .flow-steps-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+}
+
+.flow-step-item {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  transition: all var(--transition-fast);
+}
+
+.flow-step-item:hover {
+  background: var(--bg-input);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.flow-step-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.flow-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dot-funds { background: #a855f7; }
+.dot-essential { background: #06b6d4; }
+.dot-free { background: #3b82f6; }
+.dot-saving { background: #10b981; }
+
+.flow-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.flow-val {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.3px;
+  margin-top: 2px;
+}
+
+.flow-pct {
+  font-size: 11px;
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+/* ================= FINANCIAL HEALTH CARD ================= */
+.health-card {
+  border-left: 3px solid #10b981;
+}
+
+.health-metrics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.health-metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  padding: 8px 12px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.health-metric-row span {
+  color: var(--text-muted);
+}
+
+.health-metric-row strong {
+  color: var(--text-main);
+  font-weight: 700;
 }
 
 /* ================= CARDS & BOXES ================= */
@@ -830,6 +1028,28 @@ html, body {
 .tx-amount.income { color: var(--success); }
 
 /* ================= SLIDE 4: INVEST ================= */
+.invest-desktop-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.invest-left-col,
+.invest-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+@media (min-width: 900px) {
+  .invest-desktop-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    align-items: start;
+  }
+}
+
 .portfolio-hero-card {
   background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
   border-radius: var(--radius-xl);
@@ -1024,6 +1244,27 @@ html, body {
   margin-top: 10px;
   padding-top: 10px;
   border-top: 1px dashed var(--border-subtle);
+}
+
+.query-desktop-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.query-left-col,
+.query-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+@media (min-width: 900px) {
+  .query-desktop-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
 }
 
 .query-results-panel {
@@ -1235,6 +1476,25 @@ html, body {
   border-radius: 4px;
   background: var(--primary);
   box-shadow: 0 0 8px var(--primary-glow);
+}
+
+@media (min-width: 900px) {
+  .bottom-slim-bar {
+    max-width: 640px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 20px 20px 0 0;
+    border: 1px solid var(--border-subtle);
+    border-bottom: none;
+    padding: 0 16px 8px;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.45);
+  }
+
+  .monthly-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+    gap: 16px;
+  }
 }
 
 /* ================= MODAL & BOTTOM SHEETS ================= */
