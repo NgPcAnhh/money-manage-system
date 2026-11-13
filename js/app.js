@@ -23,10 +23,14 @@ class AppController {
     this.queryStartMonthVal = null;
     this.queryEndMonthVal = null;
 
-    this.initElements();
-    this.bindEvents();
-    this.initSwipeGesture();
-    this.initApp();
+    try {
+      this.initElements();
+      this.bindEvents();
+      this.initSwipeGesture();
+      this.initApp();
+    } catch (err) {
+      console.error('Lỗi khi khởi tạo AppController:', err);
+    }
   }
 
   initElements() {
@@ -141,6 +145,10 @@ class AppController {
     this.themeIcon = document.getElementById('themeIcon');
     this.toastNotification = document.getElementById('toastNotification');
     this.toastMessage = document.getElementById('toastMessage');
+
+    // Persistence & Backup
+    this.btnExportJSON = document.getElementById('btnExportJSON');
+    this.inputImportJSON = document.getElementById('inputImportJSON');
   }
 
   bindEvents() {
@@ -281,28 +289,32 @@ class AppController {
     this.queryEndMonth.addEventListener('change', () => this.renderQueryView());
 
     // Backup & Restore
-    this.btnExportJSON.addEventListener('click', () => {
-      storage.exportJSON();
-      this.showToast('Đã xuất file sao lưu JSON thành công!');
-    });
+    if (this.btnExportJSON) {
+      this.btnExportJSON.addEventListener('click', () => {
+        storage.exportJSON();
+        this.showToast('Đã xuất file sao lưu JSON thành công!');
+      });
+    }
 
-    this.inputImportJSON.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (evt) => {
-        const content = evt.target.result;
-        const success = storage.importJSON(content);
-        if (success) {
-          this.showToast('Đã khôi phục dữ liệu từ JSON thành công!');
-          this.refreshAll();
-        } else {
-          this.showToast('File JSON không hợp lệ!', false);
-        }
-      };
-      reader.readAsText(file);
-      e.target.value = '';
-    });
+    if (this.inputImportJSON) {
+      this.inputImportJSON.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          const content = evt.target.result;
+          const success = storage.importJSON(content);
+          if (success) {
+            this.showToast('Đã khôi phục dữ liệu từ JSON thành công!');
+            this.refreshAll();
+          } else {
+            this.showToast('File JSON không hợp lệ!', false);
+          }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
+      });
+    }
   }
 
   // ================= SWIPE GESTURE ENGINE (FLAWLESS TOUCH & MOUSE) =================
@@ -1386,5 +1398,11 @@ class AppController {
   }
 }
 
-// Instantiate global app
-window.app = new AppController();
+// Instantiate global app safely when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    window.app = new AppController();
+  });
+} else {
+  window.app = new AppController();
+}

@@ -81,6 +81,10 @@ class StorageService {
   // Monthly Records Methods
   getMonths() {
     const data = this.getAll();
+    if (!data.months || data.months.length === 0) {
+      data.months = [JSON.parse(JSON.stringify(SEED_MONTHLY_RECORD))];
+      this.save(data);
+    }
     // Sort descending by Year and Month
     return (data.months || []).sort((a, b) => {
       if (b.year !== a.year) return b.year - a.year;
