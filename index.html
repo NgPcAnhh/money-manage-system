@@ -26,41 +26,26 @@
 </head>
 <body class="theme-dark">
 
-  <!-- Desktop Presentation Wrapper (iPhone 15 Pro Max Frame) -->
-  <div class="device-container">
-    <div class="iphone-frame">
-      
-      <!-- Dynamic Island & Status Bar -->
-      <div class="status-bar">
-        <span class="status-time" id="statusTime">09:41</span>
-        <div class="dynamic-island">
-          <div class="island-camera"></div>
-          <div class="island-sensor"></div>
+  <!-- Real Responsive App Root (Không có khung viền giả hay tai thỏ giả) -->
+  <div class="app-root">
+
+    <!-- App Header: Payday Countdown & Theme Switch Only -->
+    <header class="app-header">
+      <div class="payday-countdown-box" id="paydayCountdownBox">
+        <div class="payday-icon-wrap">
+          <i data-lucide="calendar-clock"></i>
         </div>
-        <div class="status-icons">
-          <i data-lucide="signal" class="status-icon"></i>
-          <span class="status-5g">5G</span>
-          <i data-lucide="battery-charging" class="status-icon"></i>
+        <div class="payday-text-wrap">
+          <div class="payday-main-info" id="paydayCountdownText">Còn -- ngày nhận lương</div>
+          <div class="payday-sub-info" id="paydayTargetDate">Mục tiêu: Ngày 28 hàng tháng</div>
         </div>
       </div>
-
-      <!-- Compact App Header: Payday Countdown & Theme Switch Only -->
-      <header class="app-header">
-        <div class="payday-countdown-box" id="paydayCountdownBox">
-          <div class="payday-icon-wrap">
-            <i data-lucide="calendar-clock"></i>
-          </div>
-          <div class="payday-text-wrap">
-            <div class="payday-main-info" id="paydayCountdownText">Còn -- ngày nhận lương</div>
-            <div class="payday-sub-info" id="paydayTargetDate">Mục tiêu: Ngày 28 hàng tháng</div>
-          </div>
-        </div>
-        <div class="header-actions">
-          <button class="icon-btn theme-switch-btn" id="btnToggleTheme" title="Chuyển chế độ sáng/tối">
-            <i data-lucide="moon" id="themeIcon"></i>
-          </button>
-        </div>
-      </header>
+      <div class="header-actions">
+        <button class="icon-btn theme-switch-btn" id="btnToggleTheme" title="Chuyển chế độ sáng/tối">
+          <i data-lucide="moon" id="themeIcon"></i>
+        </button>
+      </div>
+    </header>
 
       <!-- Swipeable App Container (5 Tab Slides) -->
       <div class="swipe-carousel-viewport" id="swipeViewport">
@@ -418,11 +403,7 @@
           <div class="tab-indicator"></div>
         </button>
       </nav>
-
-      <!-- Home Gesture Indicator -->
-      <div class="home-indicator"></div>
     </div>
-  </div>
 
   <!-- ================= BOTTOM SHEET: FILTER MODAL ================= -->
   <div class="modal-overlay" id="modalFilterSheet">
@@ -741,15 +722,6 @@
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       lucide.createIcons();
-      const updateClock = () => {
-        const now = new Date();
-        const hrs = String(now.getHours()).padStart(2, '0');
-        const mins = String(now.getMinutes()).padStart(2, '0');
-        const el = document.getElementById('statusTime');
-        if (el) el.textContent = `${hrs}:${mins}`;
-      };
-      updateClock();
-      setInterval(updateClock, 30000);
     });
   </script>
 </body>
