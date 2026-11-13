@@ -234,9 +234,35 @@ const FinanceCharts = {
 
     if (this.portfolioChartInstance) {
       this.portfolioChartInstance.destroy();
+      this.portfolioChartInstance = null;
     }
 
-    if (!baskets || baskets.length === 0) return;
+    const wrapper = canvas.parentElement;
+    let emptyNotice = wrapper.querySelector('.portfolio-chart-empty');
+
+    if (!baskets || baskets.length === 0) {
+      canvas.style.display = 'none';
+      if (!emptyNotice) {
+        emptyNotice = document.createElement('div');
+        emptyNotice.className = 'portfolio-chart-empty text-center text-muted py-4';
+        emptyNotice.style.fontSize = '12.5px';
+        emptyNotice.innerHTML = `
+          <div style="font-size: 24px; margin-bottom: 6px;">📊</div>
+          <div>Chưa có dữ liệu danh mục để vẽ biểu đồ tỷ trọng.</div>
+          <div class="text-caption mt-1">Hãy bấm "Thêm Rỏ Mới" để bắt đầu khai báo.</div>
+        `;
+        wrapper.appendChild(emptyNotice);
+      } else {
+        emptyNotice.style.display = 'block';
+      }
+      return;
+    }
+
+    // Has baskets
+    canvas.style.display = 'block';
+    if (emptyNotice) {
+      emptyNotice.style.display = 'none';
+    }
 
     const labels = baskets.map(b => b.name);
     const dataValues = baskets.map(b => Number(b.currentValue || 0));

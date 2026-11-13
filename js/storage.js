@@ -3,7 +3,7 @@
  * Supports GitHub Pages hosting via LocalStorage + JSON Export / Import
  */
 
-const STORAGE_KEY = 'mms_finance_vault_v1';
+const STORAGE_KEY = 'mms_finance_vault_v2';
 
 // Seed Record directly derived from user's Excel file (Month 9/2026)
 const SEED_MONTHLY_RECORD = {
@@ -34,64 +34,11 @@ const SEED_MONTHLY_RECORD = {
   updatedAt: new Date().toISOString()
 };
 
-// Default starter investment baskets
-const SEED_BASKETS = [
-  {
-    id: 'basket_1',
-    name: 'Cổ phiếu & Chứng khoán',
-    type: 'Chứng khoán',
-    capital: 10000000,
-    currentValue: 11250000,
-    color: '#3b82f6',
-    note: 'Tích sản cổ phiếu ngân hàng & công nghệ'
-  },
-  {
-    id: 'basket_2',
-    name: 'Quỹ mở & ETF',
-    type: 'Quỹ mở / ETF',
-    capital: 5000000,
-    currentValue: 5350000,
-    color: '#10b981',
-    note: 'Đầu tư định kỳ thụ động hàng tháng'
-  },
-  {
-    id: 'basket_3',
-    name: 'Crypto (BTC / ETH)',
-    type: 'Crypto',
-    capital: 3000000,
-    currentValue: 3900000,
-    color: '#f59e0b',
-    note: 'Danh mục mạo hiểm dài hạn'
-  }
-];
+// Danh mục đầu tư khởi đầu để trống hoàn toàn theo yêu cầu người dùng
+const SEED_BASKETS = [];
 
-// Default sample cashflow transactions
-const SEED_CASHFLOWS = [
-  {
-    id: 'tx_1',
-    type: 'expense',
-    amount: 340000,
-    category: 'Thiết yếu',
-    note: 'Gói ChatGPT Plus phục vụ công việc',
-    date: '2026-09-05'
-  },
-  {
-    id: 'tx_2',
-    type: 'expense',
-    amount: 100000,
-    category: 'Thiết yếu',
-    note: 'Cắt tóc',
-    date: '2026-09-10'
-  },
-  {
-    id: 'tx_3',
-    type: 'income',
-    amount: 2000000,
-    category: 'Lương thưởng',
-    note: 'Thưởng hiệu quả công việc',
-    date: '2026-09-25'
-  }
-];
+// Sổ thu chi linh hoạt khởi đầu để trống để người dùng tự do nhập
+const SEED_CASHFLOWS = [];
 
 class StorageService {
   constructor() {

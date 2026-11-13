@@ -675,10 +675,14 @@ class AppController {
 
     if (filtered.length === 0) {
       this.txListContainer.innerHTML = `
-        <div class="card-box text-center py-4">
-          <p class="text-muted">Không có giao dịch nào phù hợp.</p>
+        <div class="card-box text-center py-4" style="border: 1px dashed var(--border-subtle); background: transparent;">
+          <p class="text-muted" style="font-size: 13px; margin-bottom: 10px;">Chưa có khoản thu/chi nào được ghi nhận.</p>
+          <button class="btn btn-outline btn-sm" onclick="app.openCashflowModal()">
+            <i data-lucide="plus"></i> Ghi khoản phát sinh mới
+          </button>
         </div>
       `;
+      if (window.lucide) lucide.createIcons();
       return;
     }
 
@@ -768,7 +772,14 @@ class AppController {
     // Render Baskets List
     if (baskets.length === 0) {
       this.basketsContainer.innerHTML = `
-        <div class="text-center py-3 text-muted">Chưa có rỏ đầu tư nào được tạo.</div>
+        <div class="text-center py-4 text-muted" style="border: 1px dashed var(--border-subtle); border-radius: var(--radius-lg); padding: 24px 16px;">
+          <div style="font-size: 28px; margin-bottom: 8px;">💼</div>
+          <p style="font-size: 13px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Chưa có rỏ đầu tư nào</p>
+          <p class="text-caption mb-3">Khai báo danh mục và số tiền bạn đang bỏ vào các rỏ đầu tư.</p>
+          <button class="btn btn-primary btn-sm" onclick="app.openBasketModal()">
+            <i data-lucide="plus-circle"></i> Khai Báo Rỏ Đầu Tiên
+          </button>
+        </div>
       `;
     } else {
       this.basketsContainer.innerHTML = baskets.map(b => {
